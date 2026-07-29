@@ -1,3 +1,14 @@
+import { useRef, useState } from "react"
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+  useMotionValueEvent,
+  type MotionValue,
+} from "framer-motion"
+import { ArrowRight } from "lucide-react"
 import { Container, SectionHeading } from "@/components/primitives"
 import { cn } from "@/lib/utils"
 
@@ -5,26 +16,100 @@ const STEPS = [
   {
     k: "Baseline",
     color: "var(--ink)",
-    d: "We run your real buyer questions across ChatGPT, Perplexity, Gemini & Claude. Do they name you?",
+    title: "First, the uncomfortable snapshot.",
+    d: "We run your real buyer questions across ChatGPT, Perplexity, Gemini & Claude — three passes each, screenshots kept. Do they name you?",
   },
   {
     k: "Diagnose",
     color: "var(--primary-blue)",
-    d: "For every query a competitor wins, we trace the exact sources the AI leaned on.",
+    title: "Trace why the machine picked them.",
+    d: "For every query a competitor wins, we trace the exact sources the AI leaned on — and where your signals are thin.",
   },
   {
     k: "Fix",
     color: "var(--primary-blue)",
-    d: "Citations, schema, reviews and answer-content — the moves that change who gets named.",
+    title: "Move the signals that decide it.",
+    d: "Citations, schema, reviews and answer-content — shipped in sequence, not sprayed. The moves that change who gets named.",
   },
   {
     k: "Re-measure",
     color: "var(--data-green)",
-    d: "Re-run the same questions. Absent → named in most, in black and white.",
+    title: "Same questions. Different answer.",
+    d: "Re-run the identical queries under the same protocol. Absent → named, in black and white.",
   },
 ]
 
+/** Rail tab — label + underline that fills with that step's scroll progress. */
+function RailTab({
+  i,
+  active,
+  progress,
+  onClick,
+}: {
+  i: number
+  active: boolean
+  progress: MotionValue<number>
+  onClick: () => void
+}) {
+  const step = STEPS[i]
+  const fill = useTransform(progress, [i / STEPS.length, (i + 1) / STEPS.length], [0, 1])
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-current={active ? "step" : undefined}
+      className="group flex w-fit cursor-pointer flex-col items-start text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+    >
+      <span className="flex items-baseline gap-2.5">
+        <span className="font-mono text-[10px] tabular-nums text-faint">
+          {String(i + 1).padStart(2, "0")}
+        </span>
+        <span
+          className={cn(
+            "font-display text-[17px] font-[560] tracking-[-0.01em] transition-colors duration-400",
+            active ? "text-foreground" : "text-faint group-hover:text-muted-foreground"
+          )}
+        >
+          {step.k}
+        </span>
+      </span>
+      <span
+        aria-hidden
+        className="relative mt-2 h-px w-[176px] overflow-visible bg-border"
+      >
+        <motion.span
+          className="absolute -top-px left-0 h-[3px] w-full origin-left"
+          style={{ scaleX: fill, backgroundColor: step.color }}
+        />
+      </span>
+    </button>
+  )
+}
+
 export function HowItWorks() {
+  const reduce = useReducedMotion()
+  const stepsRef = useRef<HTMLDivElement | null>(null)
+  const [active, setActive] = useState(0)
+
+  // One listener drives everything: overall progress through the step column.
+  const { scrollYProgress } = useScroll({
+    target: stepsRef,
+    offset: ["start 0.55", "end 0.65"],
+  })
+  const smooth = useSpring(scrollYProgress, { stiffness: 120, damping: 28, restDelta: 0.001 })
+  const progress = reduce ? scrollYProgress : smooth
+
+  useMotionValueEvent(scrollYProgress, "change", (v) => {
+    setActive(Math.min(STEPS.length - 1, Math.max(0, Math.floor(v * STEPS.length))))
+  })
+
+  const scrollToStep = (i: number) => {
+    document.getElementById(`how-step-${i}`)?.scrollIntoView({
+      behavior: reduce ? "auto" : "smooth",
+      block: "start",
+    })
+  }
+
   return (
     <section id="how" className="relative border-t border-border py-24 md:py-30">
       <Container>
@@ -46,62 +131,185 @@ export function HowItWorks() {
           }
         />
 
-        <div className="relative mt-18">
-          {/* directional axis: ink → cobalt → green */}
-          <div
-            aria-hidden
-            className="absolute left-0 right-0 top-[6px] hidden h-[2px] md:block"
-            style={{
-              background:
-                "linear-gradient(90deg, var(--ink) 0%, var(--primary-blue) 55%, var(--data-green) 100%)",
-              opacity: 0.55,
-            }}
-          />
-          <div
-            aria-hidden
-            className="absolute bottom-2 left-[5px] top-2 w-[2px] md:hidden"
-            style={{
-              background:
-                "linear-gradient(180deg, var(--ink) 0%, var(--primary-blue) 55%, var(--data-green) 100%)",
-              opacity: 0.55,
-            }}
-          />
+        <div className="mt-16 lg:grid lg:grid-cols-12 lg:gap-x-8">
+          {/* pinned rail — stays with you while the steps scroll (lg+) */}
+          <div className="hidden lg:col-span-4 lg:block">
+            <nav
+              aria-label="Method steps"
+              className="sticky top-28 flex flex-col items-start gap-5 py-6"
+            >
+              {STEPS.map((s, i) => (
+                <RailTab
+                  key={s.k}
+                  i={i}
+                  active={active === i}
+                  progress={progress}
+                  onClick={() => scrollToStep(i)}
+                />
+              ))}
+              <p className="mt-4 max-w-[24ch] text-[13px] leading-relaxed text-faint">
+                One loop. Four to six weeks. Evidence at both ends.
+              </p>
+            </nav>
+          </div>
 
-          <ol className="grid gap-y-11 md:grid-cols-4 md:gap-x-6">
+          {/* scrolling step column */}
+          <div ref={stepsRef} className="lg:col-span-7 lg:col-start-6">
             {STEPS.map((s, i) => (
-              <li
+              <article
                 key={s.k}
+                id={`how-step-${i}`}
                 className={cn(
-                  "relative pl-7 md:pl-0 md:pt-8",
-                  i === 1 && "md:mt-9",
-                  i === 2 && "md:mt-4",
-                  i === 3 && "md:mt-14"
+                  "scroll-mt-28 border-t border-border py-12 first:border-t-0 first:pt-0 lg:flex lg:min-h-[62vh] lg:flex-col lg:justify-center lg:py-16"
                 )}
               >
-                <span
-                  aria-hidden
-                  className="absolute left-0 top-[2px] size-[11px] rounded-[2px] ring-4 ring-background md:top-0"
-                  style={{ backgroundColor: s.color }}
-                />
-                <div className="flex items-baseline gap-2.5">
-                  <span className="font-mono text-[11px] tabular-nums text-faint">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <span
-                    className="font-mono text-[11px] font-medium uppercase tracking-[0.12em]"
-                    style={{ color: s.color }}
-                  >
+                <div className="flex items-baseline gap-2.5 font-mono text-[11px] uppercase tracking-[0.12em]">
+                  <span className="tabular-nums text-faint">{String(i + 1).padStart(2, "0")}</span>
+                  <span style={{ color: s.color }} className="font-medium">
                     {s.k}
                   </span>
                 </div>
-                <p className="mt-3 max-w-[24ch] text-[14.5px] leading-relaxed text-muted-foreground">
+                <h3 className="mt-4 max-w-[24ch] font-display text-[1.6rem] font-[620] leading-[1.15] tracking-[-0.02em] sm:text-[1.85rem]">
+                  {s.title}
+                </h3>
+                <p className="mt-4 max-w-[52ch] text-[15px] leading-relaxed text-muted-foreground">
                   {s.d}
                 </p>
-              </li>
+                {[<BaselinePanel key="b" />, <DiagnosePanel key="d" />, <FixPanel key="f" />, <RemeasurePanel key="r" />][i]}
+              </article>
             ))}
-          </ol>
+          </div>
         </div>
       </Container>
     </section>
+  )
+}
+
+/* ---------- illustrative panels — format only, no claimed results ---------- */
+
+function PanelShell({
+  title,
+  meta,
+  children,
+}: {
+  title: string
+  meta: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="mt-8 max-w-[520px] overflow-hidden rounded-[var(--r-lg)] border border-border bg-panel shadow-[var(--shadow-panel)]">
+      <div className="flex items-center justify-between border-b border-border px-5 py-2.5 font-mono text-[9.5px] uppercase tracking-[0.1em]">
+        <span className="font-medium text-foreground/85">{title}</span>
+        <span className="text-faint">{meta}</span>
+      </div>
+      <div className="px-5 py-4">{children}</div>
+    </div>
+  )
+}
+
+const QUERIES = [
+  "best jeweler in Dallas",
+  "custom engagement ring designer",
+  "highest-rated jewelry store",
+]
+
+function BaselinePanel() {
+  return (
+    <PanelShell title="◳ Baseline run" meta="4 engines · 3 passes">
+      <div className="flex flex-col gap-3">
+        {QUERIES.map((q) => (
+          <div key={q} className="flex items-center justify-between gap-4">
+            <span className="truncate text-[13px] text-muted-foreground">“{q}”</span>
+            <span className="flex shrink-0 items-center gap-1.5" aria-hidden>
+              {[0, 1, 2, 3].map((e) => (
+                <span key={e} className="size-[9px] rounded-[1px] bg-coral/75" />
+              ))}
+            </span>
+          </div>
+        ))}
+      </div>
+      <div className="mt-4 flex items-center gap-2 border-t border-border pt-3 font-mono text-[9.5px] uppercase tracking-[0.08em] text-faint">
+        <span className="size-[9px] rounded-[1px] bg-coral/75" aria-hidden />
+        competitor named — you, absent
+      </div>
+    </PanelShell>
+  )
+}
+
+function DiagnosePanel() {
+  const rows = [
+    ["Directory citations", "w-[82%]"],
+    ["Review corpus", "w-[64%]"],
+    ["Entity & schema signals", "w-[38%]"],
+    ["Answer-page content", "w-[24%]"],
+  ] as const
+  return (
+    <PanelShell title="◳ Source trace" meta="what the answer leaned on">
+      <div className="flex flex-col gap-3.5">
+        {rows.map(([label, w]) => (
+          <div key={label}>
+            <div className="font-mono text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
+              {label}
+            </div>
+            <div className="mt-1.5 h-[6px] w-full rounded-[1px] bg-border/60">
+              <div className={cn("h-full rounded-[1px] bg-blue", w)} />
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="mt-4 border-t border-border pt-3 font-mono text-[9.5px] uppercase tracking-[0.08em] text-faint">
+        categories shown — the source map itself stays in-house
+      </div>
+    </PanelShell>
+  )
+}
+
+function FixPanel() {
+  const rows = [
+    ["Trusted-source citations", "shipped", "bg-green", "text-green"],
+    ["Schema & entity signals", "shipped", "bg-green", "text-green"],
+    ["Review thresholds", "in progress", "bg-yellow", "text-foreground/70"],
+    ["Answer-page content", "queued", "bg-border-strong", "text-faint"],
+  ] as const
+  return (
+    <PanelShell title="◳ Fix queue" meta="shipped in sequence">
+      <ul className="flex flex-col gap-3">
+        {rows.map(([label, status, dot, tone]) => (
+          <li key={label} className="flex items-center justify-between gap-4">
+            <span className="flex items-center gap-2.5 text-[13px] text-muted-foreground">
+              <span className={cn("size-[7px] rounded-[1px]", dot)} aria-hidden />
+              {label}
+            </span>
+            <span className={cn("font-mono text-[9.5px] uppercase tracking-[0.08em]", tone)}>
+              {status}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </PanelShell>
+  )
+}
+
+function RemeasurePanel() {
+  return (
+    <PanelShell title="◳ Re-measure" meta="same questions, same protocol">
+      <div className="flex flex-col gap-3">
+        {QUERIES.map((q) => (
+          <div key={q} className="flex items-center justify-between gap-4">
+            <span className="truncate text-[13px] text-muted-foreground">“{q}”</span>
+            <span className="flex shrink-0 items-center gap-2 font-mono text-[10px] uppercase tracking-[0.06em]">
+              <span className="text-faint line-through decoration-coral/60">absent</span>
+              <ArrowRight size={11} className="text-faint" aria-hidden />
+              <span className="rounded-[2px] bg-green/12 px-1.5 py-0.5 font-medium text-green">
+                named
+              </span>
+            </span>
+          </div>
+        ))}
+      </div>
+      <div className="mt-4 border-t border-border pt-3 font-mono text-[9.5px] uppercase tracking-[0.08em] text-faint">
+        the goal state — every claim ships with dated screenshots
+      </div>
+    </PanelShell>
   )
 }
