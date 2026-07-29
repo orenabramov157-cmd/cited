@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#faf7f2" />
+
+    <title>Cited — Get recommended by AI</title>
+    <meta
+      name="description"
+      content="When your customers ask AI for the best business in your city, does it say your name? Cited gets you recommended by ChatGPT, Perplexity & Gemini."
+    />
+
+    <!-- SEO / social -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Cited — Get recommended by AI" />
+    <meta
+      property="og:description"
+      content="Your buyers stopped Googling. They ask AI — and it names a handful of businesses. Cited makes sure you're one of them."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Cited — Get recommended by AI" />
+    <meta
+      name="twitter:description"
+      content="Your buyers stopped Googling. They ask AI — and it names a handful of businesses. Cited makes sure you're one of them."
+    />
+
+    <!-- set theme before paint to avoid a flash; defaults to light -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("cited-theme-v2");
+          document.documentElement.setAttribute(
+            "data-theme",
+            t === "light" || t === "dark" ? t : "light"
+          );
+        } catch (e) {
+          document.documentElement.setAttribute("data-theme", "light");
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
