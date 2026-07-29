@@ -3,7 +3,14 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
 import { ArrowRight, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Container, Eyebrow, Marker } from "@/components/primitives"
-import { fetchTeam, buildMailto, type Agent, type TeamResult } from "@/lib/generator"
+import {
+  fetchTeam,
+  buildMailto,
+  MAX_BUSINESS,
+  MAX_CITY,
+  type Agent,
+  type TeamResult,
+} from "@/lib/generator"
 import { EASE_REVEAL, DUR, staggerContainer, agentItem } from "@/lib/motion"
 
 type State = "idle" | "generating" | "success" | "error"
@@ -26,28 +33,49 @@ export function Generator() {
   const [snapshot, setSnapshot] = useState({ biz: "", city: "" })
   // guards against a stale async result landing after a newer submit/unmount
   const runId = useRef(0)
+  // synchronous lock — React state can't stop two submits in the same tick
+  const inFlight = useRef(false)
+  const activeCtrl = useRef<AbortController | null>(null)
 
-  useEffect(() => () => { runId.current++ }, [])
+  useEffect(
+    () => () => {
+      runId.current++
+      activeCtrl.current?.abort() // don't leave work running after unmount
+    },
+    []
+  )
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (inFlight.current) return
     const b = biz.trim()
     const c = city.trim()
     if (!b || !c) {
       setState("error")
       return
     }
+    inFlight.current = true
     const run = ++runId.current
+    const ctrl = new AbortController()
+    activeCtrl.current = ctrl
     setState("generating")
-    // hold the audit state at least briefly so the transition reads as work
-    const minDelay = new Promise((r) => setTimeout(r, reduce ? 260 : 1150))
-    const [result] = await Promise.all([fetchTeam(b, c), minDelay])
-    if (run !== runId.current) return
-    setTeam(result.agents)
-    setSource(result.source)
-    setMailto(buildMailto(b, c, result.agents))
-    setSnapshot({ biz: b, city: c })
-    setState("success")
+    try {
+      // hold the audit state briefly so the transition reads as work —
+      // but never delay a reduced-motion user
+      const minDelay = reduce
+        ? Promise.resolve()
+        : new Promise((r) => setTimeout(r, 1150))
+      const [result] = await Promise.all([fetchTeam(b, c, ctrl.signal), minDelay])
+      if (run !== runId.current) return
+      setTeam(result.agents)
+      setSource(result.source)
+      setMailto(buildMailto(b, c, result.agents))
+      setSnapshot({ biz: b, city: c })
+      setState("success")
+    } finally {
+      if (activeCtrl.current === ctrl) activeCtrl.current = null
+      inFlight.current = false
+    }
   }
 
   const status = STATUS[state]
@@ -83,7 +111,7 @@ export function Generator() {
           <div className="mt-10 lg:col-span-8 lg:mt-0">
             <div className="overflow-hidden rounded-[var(--r-xl)] bg-navy text-white shadow-[var(--shadow-panel)]">
               {/* readout header */}
-              <div className="flex items-center justify-between border-b border-white/10 px-6 py-3.5 font-mono text-[10px] uppercase tracking-[0.12em] text-white/55">
+              <div className="flex items-center justify-between border-b border-white/10 px-6 py-3.5 font-mono text-[10px] uppercase tracking-[0.12em] text-white/70">
                 <span>Cited · Diagnostic instrument</span>
                 <span
                   className="inline-flex items-center gap-2 transition-colors duration-300"
@@ -108,6 +136,7 @@ export function Generator() {
                   placeholder="a fine jewelry store"
                   value={biz}
                   onChange={setBiz}
+                  maxLength={MAX_BUSINESS}
                   invalid={state === "error" && !biz.trim()}
                 />
                 <NavyField
@@ -116,6 +145,7 @@ export function Generator() {
                   placeholder="Dallas"
                   value={city}
                   onChange={setCity}
+                  maxLength={MAX_CITY}
                   invalid={state === "error" && !city.trim()}
                 />
                 <Button
@@ -137,7 +167,7 @@ export function Generator() {
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: DUR.base }}
-                      className="mt-6 border-t border-white/10 pt-6 font-mono text-[11px] tracking-[0.02em] text-white/45"
+                      className="mt-6 border-t border-white/10 pt-6 font-mono text-[11px] tracking-[0.02em] text-white/65"
                     >
                       Awaiting a business + city. Six agents will be drafted on submit.
                     </motion.div>
@@ -237,7 +267,7 @@ export function Generator() {
                               <div className="font-display text-[1.05rem] font-[640] text-white">
                                 {t.name}
                               </div>
-                              <div className="mt-1 text-[13.5px] leading-relaxed text-white/60">
+                              <div className="mt-1 break-words text-[13.5px] leading-relaxed text-white/70">
                                 {t.move}
                               </div>
                             </div>
@@ -251,7 +281,7 @@ export function Generator() {
                             Email me this team <ArrowRight />
                           </a>
                         </Button>
-                        <span className="text-[13px] text-white/45">
+                        <span className="text-[13px] text-white/65">
                           Opens a pre-filled email — edit anything before you send.
                         </span>
                       </div>
@@ -273,6 +303,7 @@ function NavyField({
   placeholder,
   value,
   onChange,
+  maxLength,
   invalid,
 }: {
   id: string
@@ -280,13 +311,14 @@ function NavyField({
   placeholder: string
   value: string
   onChange: (v: string) => void
+  maxLength: number
   invalid?: boolean
 }) {
   return (
     <div className="flex flex-col gap-2">
       <label
         htmlFor={id}
-        className="font-mono text-[10px] uppercase tracking-[0.1em] text-white/50"
+        className="font-mono text-[10px] uppercase tracking-[0.1em] text-white/65"
       >
         {label}
       </label>
@@ -296,11 +328,12 @@ function NavyField({
         value={value}
         placeholder={placeholder}
         autoComplete="off"
+        maxLength={maxLength}
         aria-invalid={invalid || undefined}
         onChange={(e) => onChange(e.target.value)}
         className={
           "flex h-12 w-full rounded-[var(--r-sm)] border bg-white/[0.06] px-4 text-[15px] text-white " +
-          "placeholder:text-white/30 caret-[#7db8f0] outline-none " +
+          "placeholder:text-white/55 caret-[#7db8f0] " +
           "transition-[border-color,box-shadow,background] duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] " +
           "hover:border-white/25 focus-visible:border-[#7db8f0] focus-visible:ring-2 focus-visible:ring-[#7db8f0]/40 " +
           (invalid ? "border-[#ff7a66]/70" : "border-white/15")

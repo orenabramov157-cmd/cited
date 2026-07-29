@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils"
 const buttonVariants = cva(
   "relative inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium select-none " +
     "transition-[background,border-color,color,transform,box-shadow] duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] " +
-    "outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background " +
+    "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background " +
     "disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98] " +
     "[&_svg]:pointer-events-none [&_svg]:shrink-0",
   {

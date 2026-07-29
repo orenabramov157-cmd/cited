@@ -18,11 +18,27 @@ const browser = await chromium.launch()
 // ---------- desktop full page ----------
 {
   const page = await browser.newPage({ viewport: { width: 1280, height: 860 } })
+  // listeners MUST be attached before navigation or load-time errors are missed
+  const errors = []
+  // /api/team 404s are EXPECTED in `vite dev` (no Pages Function) — that's the
+  // designed stub-fallback path, not a defect. Everything else counts.
+  // Network failures are caught precisely by the `response` listener below
+  // (by URL), so ignore generic resource-load console noise here and let this
+  // listener do what it's good at: real JS errors.
+  const expected = (t) => /Failed to load resource/.test(t) || /\/api\/team/.test(t)
+  page.on("pageerror", (e) => errors.push(String(e)))
+  page.on("console", (m) => {
+    if (m.type() === "error" && !expected(m.text())) errors.push(m.text())
+  })
+  const badResponses = []
+  page.on("response", (r) => {
+    if (r.status() >= 400 && !r.url().includes("/api/team")) {
+      badResponses.push(`${r.status()} ${r.url()}`)
+    }
+  })
   await page.goto(BASE, { waitUntil: "networkidle" })
   await page.waitForTimeout(1600) // entrances settle
-  ok("no console errors on load", true) // filled by listener below if any
-  const errors = []
-  page.on("pageerror", (e) => errors.push(String(e)))
+  ok("no console/page errors on load", errors.length === 0, errors.join(" | ").slice(0, 140))
 
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth > document.documentElement.clientWidth
@@ -77,26 +93,105 @@ const browser = await chromium.launch()
   ok("generator: inline error state", alertVisible)
   await page.screenshot({ path: `${OUT}/10-generator-error.png` })
 
+  // M3 regression: two submits in the same tick must fire at most one request
+  {
+    let apiCalls = 0
+    await page.route("**/api/team", async (route) => {
+      apiCalls++
+      await route.fulfill({ status: 502, body: '{"error":"api_error"}' })
+    })
+    await page.fill("#biz", "a med spa")
+    await page.fill("#city", "Austin")
+    await page.evaluate(() => {
+      const f = document.querySelector("#build form")
+      f.requestSubmit()
+      f.requestSubmit() // same tick — the sync lock must swallow this one
+    })
+    await page.waitForTimeout(1800)
+    ok("generator: double-submit fires one request", apiCalls <= 1, `${apiCalls} call(s)`)
+    await page.unroute("**/api/team")
+  }
+
+  // M4 regression: native maxLength caps input length
+  {
+    const long = "x".repeat(400)
+    await page.fill("#biz", long)
+    const len = await page.$eval("#biz", (el) => el.value.length)
+    ok("generator: input length capped", len === 120, `got ${len}`)
+    await page.fill("#biz", "")
+    await page.fill("#city", "")
+  }
+
   // keyboard focus visibility
   await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }))
   for (let i = 0; i < 3; i++) await page.keyboard.press("Tab")
   const focused = await page.evaluate(() => {
     const el = document.activeElement
     const cs = getComputedStyle(el)
-    return { tag: el.tagName, text: (el.textContent || "").slice(0, 24), outline: cs.outlineStyle !== "none" && parseFloat(cs.outlineWidth) > 0 }
+    // a focus indicator counts if it's an outline OR a non-transparent ring
+    const hasOutline = cs.outlineStyle !== "none" && parseFloat(cs.outlineWidth) > 0
+    const hasRing = cs.boxShadow !== "none" && !/^(rgba\(0, 0, 0, 0\)[^,]*,?\s*)+$/.test(cs.boxShadow)
+    return {
+      tag: el.tagName,
+      text: (el.textContent || "").trim().slice(0, 24),
+      visible: hasOutline || hasRing,
+      how: hasOutline ? "outline" : hasRing ? "ring" : "none",
+    }
   })
-  ok("keyboard: visible focus ring", focused.outline, `${focused.tag} "${focused.text}"`)
+  ok(
+    "keyboard: visible focus indicator",
+    focused.visible,
+    `${focused.tag} "${focused.text}" via ${focused.how}`
+  )
   await page.screenshot({ path: `${OUT}/11-focus-state.png` })
+
+  // M6 regression: --faint must clear WCAG AA (4.5:1) against the canvas
+  {
+    const contrast = await page.evaluate(() => {
+      const cs = getComputedStyle(document.documentElement)
+      const parse = (v) => {
+        const m = v.trim().match(/^#?([0-9a-f]{6})$/i)
+        if (m) return [0, 2, 4].map((i) => parseInt(m[1].slice(i, i + 2), 16))
+        const n = v.match(/\d+/g)
+        return n ? n.slice(0, 3).map(Number) : null
+      }
+      const lum = (c) => {
+        const s = c.map((v) => {
+          v /= 255
+          return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)
+        })
+        return 0.2126 * s[0] + 0.7152 * s[1] + 0.0722 * s[2]
+      }
+      const fg = parse(cs.getPropertyValue("--faint"))
+      const bg = parse(getComputedStyle(document.body).backgroundColor)
+      if (!fg || !bg) return null
+      const [hi, lo] = lum(fg) > lum(bg) ? [lum(fg), lum(bg)] : [lum(bg), lum(fg)]
+      return (hi + 0.05) / (lo + 0.05)
+    })
+    ok(
+      "contrast: --faint ≥ 4.5:1 (light)",
+      contrast !== null && contrast >= 4.5,
+      contrast ? contrast.toFixed(2) : "unmeasured"
+    )
+  }
 
   // dim mode via toggle
   await page.click('button[aria-label*="Switch to dark"]')
   await page.waitForTimeout(400)
   const theme = await page.evaluate(() => document.documentElement.getAttribute("data-theme"))
   ok("theme toggle → dark", theme === "dark")
+  // L4 regression: mobile browser chrome follows the theme
+  const themeColor = await page.$eval('meta[name="theme-color"]', (m) => m.content)
+  ok("theme-color meta follows theme", themeColor.toLowerCase() === "#10161f", themeColor)
   await page.screenshot({ path: `${OUT}/12-dim-mode-hero.png` })
   await page.click('button[aria-label*="Switch to light"]')
 
   ok("no page errors (desktop pass)", errors.length === 0, errors.join(" | ").slice(0, 120))
+  ok(
+    "no failed asset requests",
+    badResponses.length === 0,
+    badResponses.join(" | ").slice(0, 120)
+  )
   await page.close()
 }
 

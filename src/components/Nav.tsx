@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { motion } from "framer-motion"
+import { motion, useReducedMotion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { Container } from "@/components/primitives"
@@ -15,6 +15,7 @@ const LINKS = [
 
 export function Nav() {
   const [scrolled, setScrolled] = useState(false)
+  const reduce = useReducedMotion()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12)
@@ -25,9 +26,9 @@ export function Nav() {
 
   return (
     <motion.header
-      initial={{ opacity: 0, y: -12 }}
+      initial={reduce ? false : { opacity: 0, y: -12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.55, ease: EASE_REVEAL }}
+      transition={{ duration: reduce ? 0 : 0.55, ease: EASE_REVEAL }}
       className="fixed inset-x-0 top-0 z-50"
     >
       <div
@@ -55,7 +56,7 @@ export function Nav() {
                 <a
                   key={l.href}
                   href={l.href}
-                  className="group flex items-baseline gap-1.5 py-1 text-[14px] font-medium text-muted-foreground outline-none transition-colors duration-200 hover:text-foreground focus-visible:text-foreground"
+                  className="group flex items-baseline gap-1.5 py-1 text-[14px] font-medium text-muted-foreground transition-colors duration-200 hover:text-foreground focus-visible:text-foreground"
                 >
                   <span className="font-mono text-[9px] tabular-nums text-faint transition-colors group-hover:text-blue">
                     {l.n}

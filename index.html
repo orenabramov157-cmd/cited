@@ -32,10 +32,10 @@
       (function () {
         try {
           var t = localStorage.getItem("cited-theme-v2");
-          document.documentElement.setAttribute(
-            "data-theme",
-            t === "light" || t === "dark" ? t : "light"
-          );
+          var theme = t === "light" || t === "dark" ? t : "light";
+          document.documentElement.setAttribute("data-theme", theme);
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute("content", theme === "dark" ? "#10161f" : "#faf7f2");
         } catch (e) {
           document.documentElement.setAttribute("data-theme", "light");
         }

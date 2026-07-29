@@ -17,6 +17,10 @@ export function useTheme() {
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme)
+    // keep mobile browser chrome in sync with the page
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute("content", theme === "dark" ? "#10161f" : "#faf7f2")
     try {
       localStorage.setItem(KEY, theme)
     } catch {

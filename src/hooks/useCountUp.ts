@@ -17,11 +17,13 @@ export function useCountUp(value: number, duration = 1100, decimals = 0) {
   const [display, setDisplay] = useState(0)
 
   useEffect(() => {
-    if (!inView) return
+    // reduced motion: snap to the final value immediately — never wait for
+    // intersection, so off-screen counters don't sit at 0 for AT users
     if (reduce) {
       setDisplay(value)
       return
     }
+    if (!inView) return
     let raf = 0
     let start = 0
     const step = (ts: number) => {

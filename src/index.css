@@ -32,7 +32,7 @@
 
   --foreground: var(--ink);
   --muted-foreground: var(--text-secondary);
-  --faint: #8a9099;
+  --faint: #6b7079; /* 4.66:1 on canvas — WCAG AA for small text */
 
   --border: var(--line);
   --border-strong: #b9c2cf;
@@ -64,7 +64,7 @@
   --muted: #f1ede5;
   --accent: var(--blue-soft);
   --accent-foreground: var(--blue-deep);
-  --ring: color-mix(in srgb, var(--primary-blue) 55%, transparent);
+  --ring: var(--primary-blue); /* opaque — 6.43:1 on canvas (translucent failed 3:1) */
 
   /* varied radii */
   --r-xs: 2px;
@@ -104,7 +104,7 @@
 
   --foreground: var(--ink);
   --muted-foreground: var(--text-secondary);
-  --faint: #6d7683;
+  --faint: #7b8492; /* 4.81:1 on dark canvas — WCAG AA for small text */
 
   --border: var(--line);
   --border-strong: #354153;
@@ -136,7 +136,7 @@
   --muted: #1c2431;
   --accent: var(--blue-soft);
   --accent-foreground: var(--blue-deep);
-  --ring: color-mix(in srgb, var(--blue) 55%, transparent);
+  --ring: var(--blue); /* opaque — 5.30:1 on dark canvas */
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
   --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.35), 0 14px 34px rgba(0, 0, 0, 0.4);

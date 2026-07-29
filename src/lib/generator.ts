@@ -10,36 +10,75 @@ export const CONTACT_EMAIL = "orenabramov157@gmail.com"
 export type Agent = { name: string; move: string }
 export type TeamResult = { agents: Agent[]; source: "live" | "stub" }
 
-export async function fetchTeam(biz: string, city: string): Promise<TeamResult> {
+/** Exactly six agents is the product contract — enforced here and server-side. */
+export const TEAM_SIZE = 6
+
+/** Input bounds. Code-point aware; mirrored in functions/api/team.ts. */
+export const MAX_BUSINESS = 120
+export const MAX_CITY = 80
+
+/** Lose the race to the server's 9s deadline so its error path wins. */
+const CLIENT_TIMEOUT_MS = 12_000
+
+/** Trim to `max` code points (never splits a surrogate pair). */
+export function clampInput(value: string, max: number): string {
+  return [...value.trim()].slice(0, max).join("")
+}
+
+/** Six distinct, non-empty agents — or null. Mirrors the server contract. */
+function validateTeam(raw: unknown): Agent[] | null {
+  if (!raw || typeof raw !== "object") return null
+  const list = (raw as { agents?: unknown }).agents
+  if (!Array.isArray(list) || list.length !== TEAM_SIZE) return null
+
+  const seen = new Set<string>()
+  const agents: Agent[] = []
+  for (const item of list) {
+    if (!item || typeof item !== "object") return null
+    const { name, move } = item as Agent
+    if (typeof name !== "string" || typeof move !== "string") return null
+    const n = name.trim()
+    const m = move.trim()
+    if (!n || !m) return null
+    const key = n.toLowerCase()
+    if (seen.has(key)) return null
+    seen.add(key)
+    agents.push({ name: n, move: m })
+  }
+  return agents
+}
+
+export async function fetchTeam(
+  biz: string,
+  city: string,
+  signal?: AbortSignal
+): Promise<TeamResult> {
+  const b = clampInput(biz, MAX_BUSINESS)
+  const c = clampInput(city, MAX_CITY)
+
+  const ctrl = new AbortController()
+  const abortOuter = () => ctrl.abort()
+  signal?.addEventListener("abort", abortOuter, { once: true })
+  const timer = setTimeout(() => ctrl.abort(), CLIENT_TIMEOUT_MS)
+
   try {
-    const ctrl = new AbortController()
-    const timer = setTimeout(() => ctrl.abort(), 12_000)
     const res = await fetch("/api/team", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ business: biz, city }),
+      body: JSON.stringify({ business: b, city: c }),
       signal: ctrl.signal,
     })
-    clearTimeout(timer)
     if (res.ok) {
-      const data = (await res.json()) as { agents?: unknown }
-      if (
-        Array.isArray(data.agents) &&
-        data.agents.length >= 4 &&
-        data.agents.every(
-          (a): a is Agent =>
-            !!a &&
-            typeof (a as Agent).name === "string" &&
-            typeof (a as Agent).move === "string"
-        )
-      ) {
-        return { agents: data.agents.slice(0, 6), source: "live" }
-      }
+      const agents = validateTeam(await res.json())
+      if (agents) return { agents, source: "live" }
     }
   } catch {
-    // fall through to the stub
+    // network error, timeout, or caller cancellation → stub
+  } finally {
+    clearTimeout(timer)
+    signal?.removeEventListener("abort", abortOuter)
   }
-  return { agents: buildTeam(biz, city), source: "stub" }
+  return { agents: buildTeam(b, c), source: "stub" }
 }
 
 /** crude singular-ish noun for nicer copy ("a fine jewelry store" -> "jewelry store") */
@@ -53,8 +92,8 @@ function strip(s: string): string {
 }
 
 export function buildTeam(biz: string, city: string): Agent[] {
-  const b = biz.trim()
-  const c = city.trim()
+  const b = clampInput(biz, MAX_BUSINESS)
+  const c = clampInput(city, MAX_CITY)
   const a = /^[aeiou]/i.test(b) ? "an" : "a"
   return [
     {
@@ -84,12 +123,25 @@ export function buildTeam(biz: string, city: string): Agent[] {
   ]
 }
 
+/** Strip lone surrogates so encodeURIComponent can't throw on pasted junk. */
+function safeEncode(s: string): string {
+  return encodeURIComponent(s.replace(/[\uD800-\uDFFF]/g, (ch, i, str) => {
+    const code = ch.charCodeAt(0)
+    const isHigh = code <= 0xdbff
+    const partner = isHigh ? str.charCodeAt(i + 1) : str.charCodeAt(i - 1)
+    const paired = isHigh
+      ? partner >= 0xdc00 && partner <= 0xdfff
+      : partner >= 0xd800 && partner <= 0xdbff
+    return paired ? ch : "�"
+  }))
+}
+
 export function buildMailto(biz: string, city: string, team: Agent[]): string {
-  const subject = encodeURIComponent(
-    `I want this AI visibility team — ${biz} (${city})`
-  )
+  const b = clampInput(biz, MAX_BUSINESS)
+  const c = clampInput(city, MAX_CITY)
+  const subject = safeEncode(`I want this AI visibility team — ${b} (${c})`)
   const bodyLines = [
-    `Hi — I want to get ${biz} recommended by AI in ${city}.`,
+    `Hi — I want to get ${b} recommended by AI in ${c}.`,
     "",
     "Here's the team the site sketched for me:",
     "",
@@ -97,7 +149,7 @@ export function buildMailto(biz: string, city: string, team: Agent[]): string {
     "",
     "Can we talk about what this would look like?",
   ]
-  return `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${encodeURIComponent(
+  return `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${safeEncode(
     bodyLines.join("\n")
   )}`
 }
