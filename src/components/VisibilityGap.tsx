@@ -3,6 +3,8 @@ import {
   Area,
   AreaChart,
   CartesianGrid,
+  ReferenceDot,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -16,8 +18,10 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion"
+import { ArrowRight } from "lucide-react"
 import { Container, SectionHeading } from "@/components/primitives"
 import { CountNumber } from "@/components/CountNumber"
+import { EASE_REVEAL } from "@/lib/motion"
 
 const DATA = [
   { m: "’24 Q3", v: 6 },
@@ -44,6 +48,27 @@ function ChartTooltip({ active, payload }: TP) {
       <div className="mt-0.5 font-display text-lg font-[640] text-blue tnum">{p.value}%</div>
       <div className="font-mono text-[9.5px] text-muted-foreground">ask AI · local search</div>
     </div>
+  )
+}
+
+/** Event marker label — small mono flag pinned to the top of the plot. */
+function EventFlag({ viewBox, text }: { viewBox?: { x: number }; text: string }) {
+  if (!viewBox) return null
+  return (
+    <text x={viewBox.x + 6} y={14} textAnchor="start" className="chart-flag">
+      {text}
+    </text>
+  )
+}
+
+/** "Now" endpoint — solid dot with a slow radar pulse. */
+function PulseDot({ cx, cy }: { cx?: number; cy?: number }) {
+  if (cx === undefined || cy === undefined) return null
+  return (
+    <g>
+      <circle cx={cx} cy={cy} r={5} className="chart-pulse" />
+      <circle cx={cx} cy={cy} r={4.5} fill="var(--blue)" stroke="var(--panel)" strokeWidth={2} />
+    </g>
   )
 }
 
@@ -102,7 +127,7 @@ export function VisibilityGap() {
         </div>
 
         {/* evidence: oversized stat overlapping the chart */}
-        <div className="relative mt-14 lg:mt-20">
+        <div className="relative mt-12 lg:mt-18">
           <div className="lg:absolute lg:left-0 lg:top-1/2 lg:z-10 lg:max-w-[34%] lg:-translate-y-[56%]">
             <div className="font-display text-stat font-[680] tracking-[-0.03em] text-ink tnum dark:text-foreground">
               <CountNumber value={45} suffix="%" />
@@ -114,7 +139,7 @@ export function VisibilityGap() {
           </div>
 
           {/* chart — right-weighted */}
-          <div className="lg:ml-[34%] lg:pl-8">
+          <div className="mt-8 lg:ml-[34%] lg:mt-0 lg:pl-8">
             <div className="mb-3 flex items-baseline justify-between border-b border-border pb-2">
               <span className="eyebrow text-muted-foreground">Buyers asking AI · trend</span>
               <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-faint">
@@ -132,7 +157,7 @@ export function VisibilityGap() {
               )}
               {inView ? (
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={DATA} margin={{ top: 10, right: 6, bottom: 0, left: -20 }}>
+                  <AreaChart data={DATA} margin={{ top: 22, right: 12, bottom: 0, left: -20 }}>
                     <defs>
                       <linearGradient id="blueFill" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stopColor="var(--blue)" stopOpacity={0.22} />
@@ -160,13 +185,26 @@ export function VisibilityGap() {
                       content={<ChartTooltip />}
                       cursor={{ stroke: "var(--blue)", strokeOpacity: 0.35, strokeWidth: 1 }}
                     />
+                    {/* real timeline events — why the curve bends */}
+                    <ReferenceLine
+                      x="Q4"
+                      stroke="var(--border-strong)"
+                      strokeDasharray="2 4"
+                      label={<EventFlag text="ChatGPT gets live search" />}
+                    />
+                    <ReferenceLine
+                      x="Q2"
+                      stroke="var(--border-strong)"
+                      strokeDasharray="2 4"
+                      label={<EventFlag text="AI answers go mainstream" />}
+                    />
                     <Area
                       type="monotone"
                       dataKey="v"
                       stroke="var(--blue)"
                       strokeWidth={2.25}
                       fill="url(#blueFill)"
-                      dot={false}
+                      dot={{ r: 2.5, fill: "var(--blue)", strokeWidth: 0 }}
                       activeDot={{
                         r: 4,
                         fill: "var(--blue)",
@@ -176,6 +214,7 @@ export function VisibilityGap() {
                       // scroll drives the reveal now — no competing tween
                       isAnimationActive={false}
                     />
+                    <ReferenceDot x="Now" y={45} shape={<PulseDot />} />
                   </AreaChart>
                 </ResponsiveContainer>
               ) : (
@@ -197,27 +236,162 @@ export function VisibilityGap() {
           </div>
         </div>
 
-        {/* counterweights — asymmetric pair */}
-        <div className="mt-14 grid gap-10 border-t border-border pt-9 sm:grid-cols-12 lg:mt-20">
-          <div className="sm:col-span-5 sm:col-start-2">
-            <div className="font-display text-[2.5rem] font-[680] leading-none tracking-[-0.02em] tnum">
-              <CountNumber value={1.2} decimals={1} prefix="~" suffix="%" />
-            </div>
-            <p className="mt-2.5 max-w-[32ch] text-[14.5px] leading-relaxed text-muted-foreground">
-              of local businesses currently surface in AI answers. The field is wide open.
-            </p>
+        {/* the consequence, drawn — answer box + then/now flow */}
+        <div className="mt-12 grid gap-6 border-t border-border pt-10 lg:mt-16 lg:grid-cols-12">
+          <div className="lg:col-span-6">
+            <AnswerBox />
           </div>
-          <div className="sm:col-span-4 sm:col-start-9">
-            <div className="font-display text-[2.5rem] font-[680] leading-none tracking-[-0.02em] text-coral tnum">
-              <CountNumber value={3} />
-            </div>
-            <p className="mt-2.5 max-w-[26ch] text-[14.5px] leading-relaxed text-muted-foreground">
-              names, then it stops.{" "}
-              <span className="font-medium text-foreground">There is no position four.</span>
-            </p>
+          <div className="lg:col-span-6">
+            <FlowCompare />
           </div>
         </div>
       </Container>
     </section>
+  )
+}
+
+/* ---------- the answer box — "3 names, then it stops", visualized ---------- */
+
+const riseIn = (reduce: boolean | null, delay: number) => ({
+  initial: reduce ? false : { opacity: 0, y: 10 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, amount: 0.5 },
+  transition: { duration: 0.45, ease: EASE_REVEAL, delay },
+})
+
+function AnswerBox() {
+  const reduce = useReducedMotion()
+  return (
+    <div className="flex h-full flex-col overflow-hidden rounded-[var(--r-lg)] border border-border bg-background">
+      <div className="flex items-center justify-between border-b border-border px-5 py-2.5 font-mono text-[9.5px] uppercase tracking-[0.1em]">
+        <span className="font-medium text-foreground/85">◳ The answer box</span>
+        <span className="text-faint">one question · one shot</span>
+      </div>
+      <div className="flex flex-1 flex-col px-5 py-5">
+        <motion.div {...riseIn(reduce, 0)}>
+          <div className="font-mono text-[10px] uppercase tracking-[0.1em] text-faint">
+            Buyer asks
+          </div>
+          <div className="mt-1.5 text-[15.5px] font-medium text-foreground">
+            “best jeweler in Dallas”
+          </div>
+        </motion.div>
+
+        <div className="mt-5 flex flex-col gap-3 border-t border-border pt-5">
+          {[0, 1, 2].map((i) => (
+            <motion.div
+              key={i}
+              {...riseIn(reduce, 0.12 + i * 0.12)}
+              className="flex items-center justify-between gap-4"
+            >
+              <span className="flex items-center gap-3 text-[13.5px]">
+                <span className="font-mono text-[10px] tabular-nums text-faint">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                {/* names withheld — redaction bar, not a fake competitor */}
+                <span
+                  aria-label="competitor name withheld"
+                  className="select-none rounded-[2px] bg-foreground/80 text-transparent"
+                >
+                  Competitor name
+                </span>
+              </span>
+              <span className="font-mono text-[9.5px] uppercase tracking-[0.08em] text-green">
+                named
+              </span>
+            </motion.div>
+          ))}
+
+          <motion.div
+            {...riseIn(reduce, 0.55)}
+            className="flex items-center justify-between gap-4 border-t border-dashed border-border pt-3"
+          >
+            <span className="flex items-center gap-3 text-[13.5px]">
+              <span className="font-mono text-[10px] tabular-nums text-faint">04</span>
+              <span className="font-medium text-coral">There is no position four.</span>
+            </span>
+            <span className="font-mono text-[9.5px] uppercase tracking-[0.08em] text-faint">
+              cut off
+            </span>
+          </motion.div>
+        </div>
+
+        <div className="mt-auto border-t border-border pt-3.5 font-mono text-[9.5px] uppercase leading-relaxed tracking-[0.08em] text-faint">
+          The answer, illustrated — your name appears here, or nowhere
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ---------- then vs now — how buyers choose ---------- */
+
+function Chip({ children, tone = "muted" }: { children: React.ReactNode; tone?: "muted" | "blue" }) {
+  return (
+    <span
+      className={
+        "whitespace-nowrap rounded-[3px] border px-2 py-1 font-mono text-[10px] uppercase tracking-[0.06em] " +
+        (tone === "blue"
+          ? "border-blue/35 bg-blue/8 text-blue"
+          : "border-border bg-transparent text-muted-foreground")
+      }
+    >
+      {children}
+    </span>
+  )
+}
+
+function FlowCompare() {
+  const reduce = useReducedMotion()
+  const Arrow = () => <ArrowRight size={11} className="shrink-0 text-faint" aria-hidden />
+  return (
+    <div className="flex h-full flex-col overflow-hidden rounded-[var(--r-lg)] border border-border bg-background">
+      <div className="flex items-center justify-between border-b border-border px-5 py-2.5 font-mono text-[9.5px] uppercase tracking-[0.1em]">
+        <span className="font-medium text-foreground/85">◳ How buyers choose</span>
+        <span className="text-faint">then vs now</span>
+      </div>
+      <div className="flex flex-1 flex-col px-5 py-5">
+        <motion.div {...riseIn(reduce, 0)}>
+          <div className="font-mono text-[10px] uppercase tracking-[0.1em] text-faint">
+            Then — the search era
+          </div>
+          <div className="mt-2.5 flex flex-wrap items-center gap-2 opacity-75">
+            <Chip>Google it</Chip>
+            <Arrow />
+            <Chip>10 blue links</Chip>
+            <Arrow />
+            <Chip>page two…</Chip>
+            <Arrow />
+            <Chip>maybe you</Chip>
+          </div>
+        </motion.div>
+
+        <motion.div {...riseIn(reduce, 0.18)} className="mt-6 border-t border-border pt-5">
+          <div className="font-mono text-[10px] uppercase tracking-[0.1em] text-blue">
+            Now — the answer era
+          </div>
+          <div className="mt-2.5 flex flex-wrap items-center gap-2">
+            <Chip tone="blue">ask AI</Chip>
+            <Arrow />
+            <Chip tone="blue">3 names</Chip>
+            <Arrow />
+            <Chip tone="blue">decision made</Chip>
+          </div>
+        </motion.div>
+
+        <motion.div
+          {...riseIn(reduce, 0.34)}
+          className="mt-auto flex items-end gap-4 border-t border-border pt-5"
+        >
+          <div className="font-display text-[2.1rem] font-[680] leading-none tracking-[-0.02em] tnum">
+            <CountNumber value={1.2} decimals={1} prefix="~" suffix="%" />
+          </div>
+          <p className="max-w-[30ch] text-[13.5px] leading-snug text-muted-foreground">
+            of local businesses surface in AI answers today.{" "}
+            <span className="font-medium text-foreground">The field is wide open.</span>
+          </p>
+        </motion.div>
+      </div>
+    </div>
   )
 }
