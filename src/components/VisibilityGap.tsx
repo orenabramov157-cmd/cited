@@ -8,7 +8,14 @@ import {
   XAxis,
   YAxis,
 } from "recharts"
-import { useInView, useReducedMotion } from "framer-motion"
+import {
+  motion,
+  useInView,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+} from "framer-motion"
 import { Container, SectionHeading } from "@/components/primitives"
 import { CountNumber } from "@/components/CountNumber"
 
@@ -42,11 +49,29 @@ function ChartTooltip({ active, payload }: TP) {
 
 export function VisibilityGap() {
   const chartRef = useRef<HTMLDivElement | null>(null)
+  const sectionRef = useRef<HTMLElement | null>(null)
   const inView = useInView(chartRef, { once: true, amount: 0.4 })
   const reduce = useReducedMotion()
 
+  // Scroll-linked: the trend draws itself as the section moves through view.
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start 0.85", "center 0.55"],
+  })
+  const smooth = useSpring(scrollYProgress, {
+    stiffness: 90,
+    damping: 24,
+    restDelta: 0.001,
+  })
+  // reveal wipes left→right; the un-drawn part is hidden by a panel-colored mask
+  const maskLeft = useTransform(smooth, [0, 1], ["0%", "100%"])
+
   return (
-    <section id="problem" className="relative border-y border-border bg-panel py-24 md:py-30">
+    <section
+      ref={sectionRef}
+      id="problem"
+      className="relative border-y border-border bg-panel py-24 md:py-30"
+    >
       <Container>
         <div className="lg:grid lg:grid-cols-12 lg:gap-8">
           <SectionHeading
@@ -96,7 +121,15 @@ export function VisibilityGap() {
                 share %
               </span>
             </div>
-            <div ref={chartRef} className="h-[250px] w-full sm:h-[310px]">
+            <div ref={chartRef} className="relative h-[250px] w-full sm:h-[310px]">
+              {/* scroll-linked wipe: hides the not-yet-"drawn" part of the trend */}
+              {inView && !reduce && (
+                <motion.div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-y-0 right-0 z-10 bg-panel"
+                  style={{ left: maskLeft }}
+                />
+              )}
               {inView ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={DATA} margin={{ top: 10, right: 6, bottom: 0, left: -20 }}>
@@ -140,9 +173,8 @@ export function VisibilityGap() {
                         stroke: "var(--panel)",
                         strokeWidth: 2,
                       }}
-                      isAnimationActive={!reduce}
-                      animationDuration={1200}
-                      animationEasing="ease-out"
+                      // scroll drives the reveal now — no competing tween
+                      isAnimationActive={false}
                     />
                   </AreaChart>
                 </ResponsiveContainer>

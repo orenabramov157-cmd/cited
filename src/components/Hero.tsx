@@ -1,5 +1,12 @@
-import { useEffect, useState, type ReactNode } from "react"
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
+import { useEffect, useRef, useState, type ReactNode } from "react"
+import {
+  motion,
+  AnimatePresence,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+} from "framer-motion"
 import { ArrowRight, ArrowDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Container, Marker } from "@/components/primitives"
@@ -71,8 +78,22 @@ export function Hero() {
 
   const [category, city] = ROTATIONS[idx]
 
+  // Depth: the audit panel drifts slightly slower than the headline on scroll.
+  const heroRef = useRef<HTMLElement | null>(null)
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  })
+  const drift = useSpring(scrollYProgress, { stiffness: 80, damping: 26 })
+  const panelY = useTransform(drift, [0, 1], [0, -46])
+  const headlineY = useTransform(drift, [0, 1], [0, 14])
+
   return (
-    <header id="top" className="relative overflow-hidden pt-24 pb-14 sm:pt-28 lg:pb-20">
+    <header
+      ref={heroRef}
+      id="top"
+      className="relative overflow-hidden pt-24 pb-14 sm:pt-28 lg:pb-20"
+    >
       <Container>
         {/* masthead rule — thin directional element */}
         <motion.div
@@ -91,7 +112,10 @@ export function Hero() {
 
         <div className="relative mt-12 lg:mt-16 lg:grid lg:grid-cols-12 lg:gap-x-8">
           {/* dominant mass: headline */}
-          <div className="lg:col-span-9 lg:col-start-1 lg:row-start-1">
+          <motion.div
+            style={reduce ? undefined : { y: headlineY }}
+            className="lg:col-span-9 lg:col-start-1 lg:row-start-1"
+          >
             <h1 className="font-display text-h1 font-[640] tracking-[-0.03em]">
               <MaskLine delay={0.1}>When a customer asks AI</MaskLine>
               <MaskLine delay={0.18}>
@@ -130,11 +154,14 @@ export function Hero() {
                 <a href="#how">The method</a>
               </Button>
             </motion.div>
-          </div>
+          </motion.div>
 
           {/* secondary mass: audit panel — overlaps the headline from the right */}
           <div className="relative z-20 mt-12 sm:max-w-[430px] lg:col-span-5 lg:col-start-8 lg:row-start-1 lg:mt-0 lg:max-w-none lg:translate-y-[210px] lg:-mr-4 lg:justify-self-end">
-            <SpecPanel />
+            {/* nested so framer's transform doesn't clobber the Tailwind translate above */}
+            <motion.div style={reduce ? undefined : { y: panelY }}>
+              <SpecPanel />
+            </motion.div>
           </div>
         </div>
 
