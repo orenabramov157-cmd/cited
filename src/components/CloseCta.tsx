@@ -15,11 +15,12 @@ export function CloseCta() {
             <h2 className="mt-6 font-display text-[clamp(2.4rem,6.4vw,4.6rem)] font-[680] leading-[1.02] tracking-[-0.03em]">
               Be the name
               <br />
-              <span className="hl-yellow">the machine says.</span>
+              <span className="hl-yellow">their machine says.</span>
             </h2>
             <p className="mt-6 max-w-[50ch] text-lead text-muted-foreground">
               If your customers are asking AI where to go, this is the difference between
-              being in the answer and not existing. Let's get you cited.
+              being in the answer and not existing. Let's get you cited — it often starts
+              as simply as getting you onto the few lists the machines already trust.
             </p>
             <p className="mt-7 max-w-[52ch] border-l-2 border-yellow pl-4 text-[14px] leading-relaxed text-muted-foreground">
               <span className="font-medium text-foreground">
