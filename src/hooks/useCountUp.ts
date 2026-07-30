@@ -7,12 +7,13 @@ function easeExpoOut(t: number) {
 }
 
 /**
- * Counts from 0 → `value` once the element enters view. Respects
- * reduced-motion (snaps to final). Returns [displayValue, ref].
+ * Counts from 0 → `value` each time the element enters view (resets while
+ * off-screen so every scroll pass replays). Respects reduced-motion
+ * (snaps to final). Returns [displayValue, ref].
  */
 export function useCountUp(value: number, duration = 1100, decimals = 0) {
   const ref = useRef<HTMLSpanElement | null>(null)
-  const inView = useInView(ref, { once: true, amount: 0.6 })
+  const inView = useInView(ref, { once: false, amount: 0.6 })
   const reduce = useReducedMotion()
   const [display, setDisplay] = useState(0)
 
@@ -23,7 +24,10 @@ export function useCountUp(value: number, duration = 1100, decimals = 0) {
       setDisplay(value)
       return
     }
-    if (!inView) return
+    if (!inView) {
+      setDisplay(0)
+      return
+    }
     let raf = 0
     let start = 0
     const step = (ts: number) => {

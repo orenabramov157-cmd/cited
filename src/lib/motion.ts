@@ -56,5 +56,3 @@ export const agentItem: Variants = {
   },
 }
 
-/** Standard whileInView viewport config — fire once, a touch before fully visible. */
-export const viewportOnce = { once: true, amount: 0.35, margin: "0px 0px -12% 0px" }

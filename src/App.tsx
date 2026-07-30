@@ -13,11 +13,18 @@ const VisibilityGap = lazy(() =>
   import("@/components/VisibilityGap").then((m) => ({ default: m.VisibilityGap }))
 )
 
-/** Renders children once the placeholder comes within `rootMargin` of the viewport. */
+/**
+ * Renders children once the placeholder comes within `rootMargin` of the
+ * viewport. `id` goes on this wrapper — not on anything inside `children` —
+ * so an in-page anchor to it (nav link, scrollspy) always has a target in
+ * the DOM, even before the lazy content itself has mounted.
+ */
 function NearViewport({
+  id,
   minHeight,
   children,
 }: {
+  id?: string
   minHeight: number
   children: React.ReactNode
 }) {
@@ -45,7 +52,7 @@ function NearViewport({
   }, [])
 
   return (
-    <div ref={ref} style={show ? undefined : { minHeight }}>
+    <div id={id} ref={ref} style={show ? undefined : { minHeight }}>
       {show ? children : null}
     </div>
   )
@@ -57,7 +64,7 @@ export default function App() {
       <Nav />
       <main>
         <Hero />
-        <NearViewport minHeight={520}>
+        <NearViewport id="problem" minHeight={520}>
           <Suspense fallback={<div className="h-[520px]" aria-hidden />}>
             <VisibilityGap />
           </Suspense>

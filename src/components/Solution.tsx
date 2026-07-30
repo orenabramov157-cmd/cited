@@ -50,7 +50,8 @@ const AGENTS = [
 const popIn = (reduce: boolean | null, delay = 0) => ({
   initial: reduce ? false : { opacity: 0, y: 14, scale: 0.98 },
   whileInView: { opacity: 1, y: 0, scale: 1 },
-  viewport: { once: true, amount: 0.4 },
+  // replay on every pass — reveals track the scroll in both directions
+  viewport: { once: false, amount: 0.4 },
   transition: { duration: 0.5, ease: EASE_REVEAL, delay },
 })
 
@@ -164,7 +165,7 @@ function ReviewsFig({ reduce }: { reduce: boolean | null }) {
           <motion.div
             initial={reduce ? false : { scaleX: 0 }}
             whileInView={{ scaleX: 1 }}
-            viewport={{ once: true, amount: 0.6 }}
+            viewport={{ once: false, amount: 0.6 }}
             transition={{ duration: 0.9, ease: EASE_REVEAL, delay: 0.25 }}
             className="h-full w-[92%] origin-left rounded-[2px] bg-green"
           />
@@ -224,7 +225,7 @@ function EntityFig({ reduce }: { reduce: boolean | null }) {
             key={src}
             initial={reduce ? false : { opacity: 0, x: offsets[i] }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.6 }}
+            viewport={{ once: false, amount: 0.6 }}
             transition={{ duration: 0.55, ease: EASE_REVEAL, delay: 0.15 + i * 0.14 }}
             className="flex items-center justify-between gap-3 rounded-[3px] border border-border px-2.5 py-1.5"
           >
@@ -323,7 +324,9 @@ export function Solution() {
             01
           </div>
           <div className="max-w-[54ch]">
-            <span className="inline-block rounded-[3px] bg-yellow px-2 py-0.5 font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-ink">
+            {/* fixed dark literal, not text-ink: --yellow doesn't change in
+                dark mode but --ink does, which dropped this to ~1.3:1 */}
+            <span className="inline-block rounded-[3px] bg-yellow px-2 py-0.5 font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-[#171717]">
               Lever — {lead.tag}
             </span>
             <h3 className="mt-3 font-display text-h2 font-[640] tracking-[-0.02em]">

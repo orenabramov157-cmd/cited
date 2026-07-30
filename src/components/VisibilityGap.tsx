@@ -94,7 +94,6 @@ export function VisibilityGap() {
   return (
     <section
       ref={sectionRef}
-      id="problem"
       className="relative border-y border-border bg-panel py-10 md:py-14"
     >
       <Container>
@@ -270,7 +269,8 @@ export function VisibilityGap() {
 const riseIn = (reduce: boolean | null, delay: number) => ({
   initial: reduce ? false : { opacity: 0, y: 10 },
   whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, amount: 0.5 },
+  // replay on every pass — reveals track the scroll in both directions
+  viewport: { once: false, amount: 0.5 },
   transition: { duration: 0.45, ease: EASE_REVEAL, delay },
 })
 
@@ -317,10 +317,10 @@ function AnswerBox() {
           >
             <span className="flex items-center gap-3 text-[13.5px]">
               <span className="font-mono text-[10px] tabular-nums text-faint">04</span>
-              <span className="font-medium text-coral">There is no position four.</span>
+              <span className="font-medium text-coral">Your business</span>
             </span>
-            <span className="font-mono text-[9.5px] uppercase tracking-[0.08em] text-faint">
-              cut off
+            <span className="font-mono text-[9.5px] uppercase tracking-[0.08em] text-coral">
+              absent
             </span>
           </motion.div>
         </div>
