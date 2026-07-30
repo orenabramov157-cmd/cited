@@ -298,7 +298,7 @@ export function Solution() {
   const LeadFig = FIGS[0]
 
   return (
-    <section ref={sectionRef} id="solution" className="relative py-24 md:py-30">
+    <section ref={sectionRef} id="solution" className="relative py-16 md:py-24">
       <Container>
         <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
           <SectionHeading
@@ -318,7 +318,7 @@ export function Solution() {
         </div>
 
         {/* featured lead agent — dominant entry */}
-        <article className="mt-14 grid gap-8 border-t-2 border-ink pt-9 sm:grid-cols-[auto_1fr] sm:gap-10 lg:grid-cols-[auto_1fr_auto] dark:border-border-strong">
+        <article className="mt-10 grid gap-8 border-t-2 border-ink pt-8 sm:grid-cols-[auto_1fr] sm:gap-10 lg:grid-cols-[auto_1fr_auto] dark:border-border-strong">
           <div className="font-display text-[clamp(3rem,8vw,5.6rem)] font-[680] leading-[0.82] tracking-[-0.03em] text-blue tnum">
             01
           </div>

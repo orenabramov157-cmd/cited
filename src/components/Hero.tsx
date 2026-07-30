@@ -92,7 +92,7 @@ export function Hero() {
     <header
       ref={heroRef}
       id="top"
-      className="relative overflow-hidden pt-24 pb-14 sm:pt-28 lg:pb-20"
+      className="relative overflow-hidden pt-24 pb-10 sm:pt-28 lg:pb-14"
     >
       <Container>
         {/* masthead rule — thin directional element */}
@@ -104,9 +104,9 @@ export function Hero() {
         >
           <span>AI Visibility Index</span>
           <span className="hidden sm:inline">Local &amp; luxury retail · Dallas — Fort Worth</span>
-          <span className="inline-flex items-center gap-2 text-green">
-            <span className="size-[6px] rounded-full bg-green" />
-            Live
+          <span className="inline-flex items-center gap-2 text-foreground/70">
+            <span className="size-[6px] rounded-full bg-yellow" />
+            Baseline in progress
           </span>
         </motion.div>
 

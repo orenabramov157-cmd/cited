@@ -113,7 +113,7 @@ export function HowItWorks() {
   }
 
   return (
-    <section id="how" className="relative border-t border-border py-24 md:py-30">
+    <section id="how" className="relative border-t border-border py-16 md:py-24">
       <Container>
         <SectionHeading
           eyebrow="The Method"
@@ -133,7 +133,7 @@ export function HowItWorks() {
           }
         />
 
-        <div className="mt-16 lg:grid lg:grid-cols-12 lg:gap-x-8">
+        <div className="mt-12 lg:grid lg:grid-cols-12 lg:gap-x-8">
           {/* pinned rail — stays with you while the steps scroll (lg+) */}
           <div className="hidden lg:col-span-4 lg:block">
             <nav
@@ -162,7 +162,7 @@ export function HowItWorks() {
                 key={s.k}
                 id={`how-step-${i}`}
                 className={cn(
-                  "scroll-mt-28 border-t border-border py-12 first:border-t-0 first:pt-0 lg:flex lg:min-h-[62vh] lg:flex-col lg:justify-center lg:py-16"
+                  "scroll-mt-28 border-t border-border py-10 first:border-t-0 first:pt-0 lg:flex lg:min-h-[50vh] lg:flex-col lg:justify-center lg:py-12"
                 )}
               >
                 <div className="flex items-baseline gap-2.5 font-mono text-[11px] uppercase tracking-[0.12em]">

@@ -95,7 +95,7 @@ export function VisibilityGap() {
     <section
       ref={sectionRef}
       id="problem"
-      className="relative border-y border-border bg-panel py-24 md:py-30"
+      className="relative border-y border-border bg-panel py-16 md:py-24"
     >
       <Container>
         <div className="lg:grid lg:grid-cols-12 lg:gap-8">
@@ -127,15 +127,30 @@ export function VisibilityGap() {
         </div>
 
         {/* evidence: oversized stat overlapping the chart */}
-        <div className="relative mt-12 lg:mt-18">
+        <div className="relative mt-10 lg:mt-14">
           <div className="lg:absolute lg:left-0 lg:top-1/2 lg:z-10 lg:max-w-[34%] lg:-translate-y-[56%]">
             <div className="font-display text-stat font-[680] tracking-[-0.03em] text-ink tnum dark:text-foreground">
               <CountNumber value={45} suffix="%" />
             </div>
             <p className="mt-3 max-w-[24ch] text-[14.5px] leading-relaxed text-muted-foreground">
               of buyers now ask AI to find a local business —{" "}
-              <span className="font-medium text-foreground">up from ~6% a year ago.</span>
+              <span className="font-medium text-foreground">and it climbs every quarter.</span>
             </p>
+            <div className="mt-5 border-t border-border pt-4">
+              <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-faint">
+                The engines they ask
+              </div>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {["ChatGPT", "Perplexity", "Gemini", "Claude"].map((e) => (
+                  <span
+                    key={e}
+                    className="rounded-[3px] border border-border px-2 py-0.5 font-mono text-[9.5px] text-muted-foreground"
+                  >
+                    {e}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* chart — right-weighted */}
@@ -237,7 +252,7 @@ export function VisibilityGap() {
         </div>
 
         {/* the consequence, drawn — answer box + then/now flow */}
-        <div className="mt-12 grid gap-6 border-t border-border pt-10 lg:mt-16 lg:grid-cols-12">
+        <div className="mt-10 grid gap-6 border-t border-border pt-8 lg:mt-12 lg:grid-cols-12">
           <div className="lg:col-span-6">
             <AnswerBox />
           </div>

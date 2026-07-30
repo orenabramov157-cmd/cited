@@ -81,7 +81,7 @@ export function Generator() {
   const status = STATUS[state]
 
   return (
-    <section id="build" className="relative border-t border-border py-24 md:py-30">
+    <section id="build" className="relative border-t border-border py-16 md:py-24">
       <Container>
         <div className="lg:grid lg:grid-cols-12 lg:gap-10">
           {/* marginal support — stays on paper */}
