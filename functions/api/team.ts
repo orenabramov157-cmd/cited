@@ -69,14 +69,47 @@ const SCHEMA = {
   additionalProperties: false,
 } as const
 
-type Env = { ANTHROPIC_API_KEY?: string }
+type Env = { ANTHROPIC_API_KEY?: string; TURNSTILE_SECRET?: string }
 type Agent = { name: string; move: string }
+
+/** Turnstile response tokens are a few hundred chars; bound generously. */
+const MAX_TURNSTILE_TOKEN = 2048
 
 function json(data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), {
     status,
     headers: { "content-type": "application/json", "cache-control": "no-store" },
   })
+}
+
+/**
+ * No-op (always allow) until TURNSTILE_SECRET is configured, so this ships
+ * dark and flipping it on later is a config change, not a code change. Once
+ * a secret exists, verifies the client's token against Cloudflare's
+ * siteverify endpoint. See RECOMMENDATIONS.md item 4 / the turnstile-spin
+ * skill for provisioning the actual Turnstile site + secret.
+ */
+async function verifyTurnstile(
+  token: unknown,
+  secret: string | undefined,
+  remoteip: string | null
+): Promise<boolean> {
+  if (!secret) return true // not configured yet — today's behavior
+  if (typeof token !== "string" || !token || token.length > MAX_TURNSTILE_TOKEN) return false
+  try {
+    const body = new URLSearchParams({ secret, response: token })
+    if (remoteip) body.set("remoteip", remoteip)
+    const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      body,
+    })
+    if (!res.ok) return false
+    const data = (await res.json()) as { success?: boolean }
+    return data.success === true
+  } catch {
+    return false // verification failure → treat as untrusted, don't spend money
+  }
 }
 
 /** Bounded, code-point-aware field read. Returns "" for any non-string. */
@@ -154,6 +187,16 @@ export const onRequestPost = async (ctx: {
   const business = readField((parsed as { business?: unknown }).business, MAX_BUSINESS)
   const city = readField((parsed as { city?: unknown }).city, MAX_CITY)
   if (!business || !city) return json({ error: "missing_fields" }, 400)
+
+  // Bot check (RECOMMENDATIONS.md item 4) — no-op until TURNSTILE_SECRET is
+  // set; see verifyTurnstile above. Checked before the paid call, not after.
+  const turnstileToken = (parsed as { turnstileToken?: unknown }).turnstileToken
+  const humanVerified = await verifyTurnstile(
+    turnstileToken,
+    env.TURNSTILE_SECRET,
+    request.headers.get("cf-connecting-ip")
+  )
+  if (!humanVerified) return json({ error: "verification_failed" }, 403)
 
   // Don't outlive the caller: abort on client disconnect or our own deadline.
   const ac = new AbortController()

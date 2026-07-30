@@ -234,6 +234,10 @@
   html {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+    /* Nav is `fixed` (h-16 + border ≈ 65px) and overlays content instead of
+       pushing it down, so every in-page anchor jump needs this or the
+       target section's heading lands hidden behind the header. */
+    scroll-padding-top: 5rem;
   }
 
   body {

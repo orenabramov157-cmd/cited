@@ -46,7 +46,9 @@ export function Proof() {
                   <span className="font-medium text-foreground">
                     Live case · Dallas fine jewelry
                   </span>
-                  <span className="inline-flex items-center gap-2 rounded-[3px] bg-yellow px-2 py-0.5 font-medium text-ink">
+                  {/* fixed dark literal, not text-ink: --yellow doesn't change in
+                      dark mode but --ink does, which dropped this to ~1.3:1 */}
+                  <span className="inline-flex items-center gap-2 rounded-[3px] bg-yellow px-2 py-0.5 font-medium text-[#171717]">
                     Baseline in progress
                   </span>
                 </div>

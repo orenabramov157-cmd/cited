@@ -33,7 +33,7 @@ Verification harness (Playwright; needs the dev server on :4599):
 
 ```bash
 npx playwright install chromium
-node verify.mjs        # 12 checks + screenshots into ./verify-out
+node verify.mjs        # 21 checks + screenshots into ./verify-out
 ```
 
 Live generator locally (optional — needs a key, see `KEY-SETUP.md`):

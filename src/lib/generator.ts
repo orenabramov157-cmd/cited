@@ -51,7 +51,8 @@ function validateTeam(raw: unknown): Agent[] | null {
 export async function fetchTeam(
   biz: string,
   city: string,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  turnstileToken?: string | null
 ): Promise<TeamResult> {
   const b = clampInput(biz, MAX_BUSINESS)
   const c = clampInput(city, MAX_CITY)
@@ -65,7 +66,12 @@ export async function fetchTeam(
     const res = await fetch("/api/team", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ business: b, city: c }),
+      body: JSON.stringify({
+        business: b,
+        city: c,
+        // omitted entirely while Turnstile is unconfigured (token stays null)
+        ...(turnstileToken ? { turnstileToken } : {}),
+      }),
       signal: ctrl.signal,
     })
     if (res.ok) {
@@ -136,20 +142,56 @@ function safeEncode(s: string): string {
   }))
 }
 
-export function buildMailto(biz: string, city: string, team: Agent[]): string {
-  const b = clampInput(biz, MAX_BUSINESS)
-  const c = clampInput(city, MAX_CITY)
+/**
+ * Mail clients commonly reject or silently truncate mailto: URLs above
+ * ~2000 characters. Business/city can be up to MAX_BUSINESS/MAX_CITY code
+ * points each and appear several times in the drafted email; non-ASCII
+ * characters (emoji, CJK, etc.) can expand to 9-12+ characters once
+ * percent-encoded, so a maxed-out non-ASCII name can blow well past that
+ * limit even though the on-page input looks perfectly reasonable. Degrade
+ * in tiers instead of shipping a link that silently fails to open.
+ */
+const MAX_MAILTO_URL = 1800
+/** Last-resort business/city length for the email only — the on-page
+ *  result and the input fields themselves are never touched by this. */
+const MAILTO_FALLBACK_LEN = 20
+
+function draftMailto(b: string, c: string, team: Agent[], withMove: boolean): string {
   const subject = safeEncode(`I want this AI visibility team — ${b} (${c})`)
+  const head = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=`
   const bodyLines = [
     `Hi — I want to get ${b} recommended by AI in ${c}.`,
     "",
     "Here's the team the site sketched for me:",
     "",
-    ...team.map((t, i) => `${i + 1}. ${t.name} — ${t.move}`),
+    ...team.map((t, i) => (withMove ? `${i + 1}. ${t.name} — ${t.move}` : `${i + 1}. ${t.name}`)),
     "",
     "Can we talk about what this would look like?",
   ]
-  return `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${safeEncode(
-    bodyLines.join("\n")
-  )}`
+  return head + safeEncode(bodyLines.join("\n"))
+}
+
+export function buildMailto(biz: string, city: string, team: Agent[]): string {
+  const b = clampInput(biz, MAX_BUSINESS)
+  const c = clampInput(city, MAX_CITY)
+
+  // Tier 1: full draft (today's behavior). Tier 2: drop the per-agent
+  // move text, which is the biggest single contributor to length.
+  for (const withMove of [true, false]) {
+    const url = draftMailto(b, c, team, withMove)
+    if (url.length <= MAX_MAILTO_URL) return url
+  }
+
+  // Tier 3: only reachable with extreme non-ASCII business/city names —
+  // shorten them for the email itself (on-page result is untouched).
+  // Still personalized, and guaranteed small regardless of script.
+  const bShort = clampInput(b, MAILTO_FALLBACK_LEN)
+  const cShort = clampInput(c, MAILTO_FALLBACK_LEN)
+  const shortUrl = draftMailto(bShort, cShort, team, false)
+  if (shortUrl.length <= MAX_MAILTO_URL) return shortUrl
+
+  // Belt-and-suspenders: should be unreachable given tier 3's bound, but
+  // never ship a link past the limit. Drop any percent-escape left
+  // dangling at the cut point so the URL always stays well-formed.
+  return shortUrl.slice(0, MAX_MAILTO_URL).replace(/%[0-9A-Fa-f]?$/, "")
 }

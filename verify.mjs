@@ -122,6 +122,32 @@ const browser = await chromium.launch()
     await page.fill("#city", "")
   }
 
+  // regression: non-ASCII max-length business/city must not blow the
+  // mailto: URL past what mail clients accept (see FINDINGS.md — a
+  // maxed-out emoji/CJK name can expand hugely once percent-encoded)
+  {
+    await page.fill("#biz", "\u{1F48E}".repeat(200))
+    await page.fill("#city", "\u{1F48E}".repeat(200))
+    await page.click('#build button[type="submit"]')
+    await page.waitForTimeout(1800)
+    const href = await page.$eval('#build a[href^="mailto:"]', (a) => a.getAttribute("href"))
+    const decodable = (() => {
+      try {
+        decodeURIComponent(href.split("body=")[1] ?? "")
+        return true
+      } catch {
+        return false
+      }
+    })()
+    ok(
+      "generator: mailto stays within safe length on heavy non-ASCII input",
+      href.length <= 2000 && decodable,
+      `len=${href.length} decodable=${decodable}`
+    )
+    await page.fill("#biz", "")
+    await page.fill("#city", "")
+  }
+
   // keyboard focus visibility
   await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }))
   for (let i = 0; i < 3; i++) await page.keyboard.press("Tab")
@@ -184,6 +210,39 @@ const browser = await chromium.launch()
   const themeColor = await page.$eval('meta[name="theme-color"]', (m) => m.content)
   ok("theme-color meta follows theme", themeColor.toLowerCase() === "#10161f", themeColor)
   await page.screenshot({ path: `${OUT}/12-dim-mode-hero.png` })
+
+  // regression: ink-on-yellow chips must stay legible in dark mode too.
+  // --yellow doesn't change between themes but --ink used to, which
+  // dropped this pairing to ~1.3:1 (see FINDINGS.md).
+  {
+    const chipContrast = await page.evaluate(() => {
+      const chip = document.querySelector("#proof .bg-yellow")
+      if (!chip) return null
+      const cs = getComputedStyle(chip)
+      const parse = (v) => {
+        const n = v.match(/\d+/g)
+        return n ? n.slice(0, 3).map(Number) : null
+      }
+      const lum = (c) => {
+        const s = c.map((v) => {
+          v /= 255
+          return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)
+        })
+        return 0.2126 * s[0] + 0.7152 * s[1] + 0.0722 * s[2]
+      }
+      const fg = parse(cs.color)
+      const bg = parse(cs.backgroundColor)
+      if (!fg || !bg) return null
+      const [hi, lo] = lum(fg) > lum(bg) ? [lum(fg), lum(bg)] : [lum(bg), lum(fg)]
+      return (hi + 0.05) / (lo + 0.05)
+    })
+    ok(
+      "contrast: ink-on-yellow chip ≥ 4.5:1 (dark)",
+      chipContrast !== null && chipContrast >= 4.5,
+      chipContrast ? chipContrast.toFixed(2) : "unmeasured"
+    )
+  }
+
   await page.click('button[aria-label*="Switch to light"]')
 
   ok("no page errors (desktop pass)", errors.length === 0, errors.join(" | ").slice(0, 120))
@@ -191,6 +250,32 @@ const browser = await chromium.launch()
     "no failed asset requests",
     badResponses.length === 0,
     badResponses.join(" | ").slice(0, 120)
+  )
+  await page.close()
+}
+
+// ---------- regression: nav link to lazy-mounted content must work on the
+// first click, before the target has necessarily finished lazy-mounting
+// (see FINDINGS.md) ----------
+{
+  const page = await browser.newPage({ viewport: { width: 1280, height: 860 } })
+  await page.goto(BASE, { waitUntil: "domcontentloaded" })
+  // deliberately minimal wait — the point is to click before things settle
+  await page.waitForTimeout(100)
+  const before = await page.evaluate(() => window.scrollY)
+  await page.click('nav a[href="#problem"]')
+  await page.waitForTimeout(700)
+  const after = await page.evaluate(() => window.scrollY)
+  ok("nav: 'The Shift' link navigates on first click", after !== before, `${before} -> ${after}`)
+
+  // regression: the fixed header must not cover the section it jumped to
+  const top = await page.evaluate(
+    () => document.querySelector("#problem")?.getBoundingClientRect().top
+  )
+  ok(
+    "anchor: target not hidden under fixed nav",
+    typeof top === "number" && top >= 60,
+    `top=${top}`
   )
   await page.close()
 }

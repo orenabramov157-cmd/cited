@@ -3,6 +3,7 @@ import { motion, animate, AnimatePresence, useReducedMotion } from "framer-motio
 import { ArrowRight, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Container, Eyebrow, Marker } from "@/components/primitives"
+import { TurnstileWidget, type TurnstileHandle } from "@/components/Turnstile"
 import {
   fetchTeam,
   buildMailto,
@@ -36,6 +37,10 @@ export function Generator() {
   // synchronous lock — React state can't stop two submits in the same tick
   const inFlight = useRef(false)
   const activeCtrl = useRef<AbortController | null>(null)
+  // Turnstile (RECOMMENDATIONS.md item 4) — null/no-op until a site key is
+  // configured; see src/components/Turnstile.tsx.
+  const turnstileToken = useRef<string | null>(null)
+  const turnstileRef = useRef<TurnstileHandle>(null)
 
   useEffect(
     () => () => {
@@ -65,7 +70,10 @@ export function Generator() {
       const minDelay = reduce
         ? Promise.resolve()
         : new Promise((r) => setTimeout(r, 1150))
-      const [result] = await Promise.all([fetchTeam(b, c, ctrl.signal), minDelay])
+      const [result] = await Promise.all([
+        fetchTeam(b, c, ctrl.signal, turnstileToken.current),
+        minDelay,
+      ])
       if (run !== runId.current) return
       setTeam(result.agents)
       setSource(result.source)
@@ -75,6 +83,7 @@ export function Generator() {
     } finally {
       if (activeCtrl.current === ctrl) activeCtrl.current = null
       inFlight.current = false
+      turnstileRef.current?.reset() // tokens are single-use
     }
   }
 
@@ -154,6 +163,13 @@ export function Generator() {
                 >
                   {state === "generating" ? "Running…" : <>Build team <ArrowRight /></>}
                 </Button>
+                {/* no-op / invisible until VITE_TURNSTILE_SITE_KEY is set */}
+                <TurnstileWidget
+                  ref={turnstileRef}
+                  onToken={(t) => {
+                    turnstileToken.current = t
+                  }}
+                />
               </form>
 
               <motion.div layout="position" className="px-6 pb-8 sm:px-8">
