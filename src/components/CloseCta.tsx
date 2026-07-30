@@ -4,7 +4,7 @@ import { Container, Eyebrow, Marker } from "@/components/primitives"
 
 export function CloseCta() {
   return (
-    <section id="start" className="relative border-t border-border bg-panel py-20 md:py-28">
+    <section id="start" className="relative border-t border-border bg-panel py-14 md:py-18">
       <Container>
         <div className="lg:grid lg:grid-cols-12 lg:items-end lg:gap-8">
           <div className="lg:col-span-9">

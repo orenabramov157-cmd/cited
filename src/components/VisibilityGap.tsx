@@ -95,7 +95,7 @@ export function VisibilityGap() {
     <section
       ref={sectionRef}
       id="problem"
-      className="relative border-y border-border bg-panel py-16 md:py-24"
+      className="relative border-y border-border bg-panel py-10 md:py-14"
     >
       <Container>
         <div className="lg:grid lg:grid-cols-12 lg:gap-8">
@@ -127,7 +127,7 @@ export function VisibilityGap() {
         </div>
 
         {/* evidence: oversized stat overlapping the chart */}
-        <div className="relative mt-10 lg:mt-14">
+        <div className="relative mt-8 lg:mt-10">
           <div className="lg:absolute lg:left-0 lg:top-1/2 lg:z-10 lg:max-w-[34%] lg:-translate-y-[56%]">
             <div className="font-display text-stat font-[680] tracking-[-0.03em] text-ink tnum dark:text-foreground">
               <CountNumber value={45} suffix="%" />
@@ -252,7 +252,7 @@ export function VisibilityGap() {
         </div>
 
         {/* the consequence, drawn — answer box + then/now flow */}
-        <div className="mt-10 grid gap-6 border-t border-border pt-8 lg:mt-12 lg:grid-cols-12">
+        <div className="mt-8 grid gap-6 border-t border-border pt-7 lg:mt-10 lg:grid-cols-12">
           <div className="lg:col-span-6">
             <AnswerBox />
           </div>

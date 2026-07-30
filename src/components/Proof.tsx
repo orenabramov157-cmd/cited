@@ -15,7 +15,7 @@ const ROWS = [
 
 export function Proof() {
   return (
-    <section id="proof" className="relative border-t border-border bg-panel py-16 md:py-24">
+    <section id="proof" className="relative border-t border-border bg-panel py-10 md:py-14">
       <Container>
         <div className="lg:grid lg:grid-cols-12 lg:gap-10">
           {/* dominant mass: the live scorecard */}

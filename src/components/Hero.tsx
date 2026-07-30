@@ -92,7 +92,7 @@ export function Hero() {
     <header
       ref={heroRef}
       id="top"
-      className="relative overflow-hidden pt-24 pb-10 sm:pt-28 lg:pb-14"
+      className="relative overflow-hidden pt-24 pb-8 sm:pt-28 lg:pb-10"
     >
       <Container>
         {/* masthead rule — thin directional element */}
@@ -170,7 +170,7 @@ export function Hero() {
           initial={reduce ? false : { opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, ease: EASE_REVEAL, delay: 0.64 }}
-          className="mt-14 flex items-end justify-between gap-6 border-t border-border pt-7 lg:mt-10 lg:max-w-[58%]"
+          className="mt-10 flex items-end justify-between gap-6 border-t border-border pt-6 lg:mt-8 lg:max-w-[58%]"
         >
           <dl className="flex flex-wrap gap-x-10 gap-y-6">
             <HeroStat
