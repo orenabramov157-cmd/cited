@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
+import { motion, animate, AnimatePresence, useReducedMotion } from "framer-motion"
 import { ArrowRight, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Container, Eyebrow, Marker } from "@/components/primitives"
@@ -268,7 +268,7 @@ export function Generator() {
                                 {t.name}
                               </div>
                               <div className="mt-1 break-words text-[13.5px] leading-relaxed text-white/70">
-                                {t.move}
+                                <TypeLine text={t.move} delay={0.25 + i * 0.24} />
                               </div>
                             </div>
                           </motion.li>
@@ -294,6 +294,44 @@ export function Generator() {
         </div>
       </Container>
     </section>
+  )
+}
+
+/** Types the line out like a live draft. Space is pre-reserved (no reflow),
+ *  screen readers get the full text immediately, reduced motion skips it. */
+function TypeLine({ text, delay = 0 }: { text: string; delay?: number }) {
+  const reduce = useReducedMotion()
+  const [shown, setShown] = useState(reduce ? text : "")
+  const done = shown.length >= text.length
+
+  useEffect(() => {
+    if (reduce) {
+      setShown(text)
+      return
+    }
+    setShown("")
+    const ctrl = animate(0, text.length, {
+      duration: Math.min(1.2, 0.3 + text.length * 0.011),
+      delay,
+      ease: "linear",
+      onUpdate: (v) => setShown(text.slice(0, Math.round(v))),
+    })
+    return () => ctrl.stop()
+  }, [text, delay, reduce])
+
+  return (
+    <span className="relative inline-block w-full" aria-label={text} role="text">
+      {/* invisible copy reserves the final layout so nothing shifts while typing */}
+      <span aria-hidden className="invisible">
+        {text}
+      </span>
+      <span aria-hidden className="absolute inset-0">
+        {shown}
+        {!done && !reduce && (
+          <span className="ml-0.5 inline-block h-[1em] w-[7px] translate-y-[0.15em] animate-pulse rounded-[1px] bg-[#7db8f0]/80" />
+        )}
+      </span>
+    </span>
   )
 }
 
