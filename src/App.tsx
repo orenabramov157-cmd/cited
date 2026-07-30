@@ -5,8 +5,10 @@ import { Solution } from "@/components/Solution"
 import { HowItWorks } from "@/components/HowItWorks"
 import { Proof } from "@/components/Proof"
 import { Generator } from "@/components/Generator"
+import { About } from "@/components/About"
 import { CloseCta } from "@/components/CloseCta"
 import { SiteFooter } from "@/components/SiteFooter"
+import { LegalPage } from "@/components/LegalPage"
 
 // Recharts is heavy — its own chunk, fetched only as the section nears view.
 const VisibilityGap = lazy(() =>
@@ -59,6 +61,12 @@ function NearViewport({
 }
 
 export default function App() {
+  // Tiny path router — /terms and /privacy render standalone legal pages.
+  // Cloudflare Pages' SPA fallback (and vite dev) serve index.html for both.
+  const path = window.location.pathname
+  if (path === "/terms" || path === "/terms/") return <LegalPage doc="terms" />
+  if (path === "/privacy" || path === "/privacy/") return <LegalPage doc="privacy" />
+
   return (
     <>
       <Nav />
@@ -73,6 +81,7 @@ export default function App() {
         <HowItWorks />
         <Proof />
         <Generator />
+        <About />
         <CloseCta />
       </main>
       <SiteFooter />

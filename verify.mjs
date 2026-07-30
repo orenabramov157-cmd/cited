@@ -280,6 +280,18 @@ const browser = await chromium.launch()
   await page.close()
 }
 
+// ---------- legal pages (/terms, /privacy) ----------
+{
+  const page = await browser.newPage({ viewport: { width: 1280, height: 860 } })
+  for (const [path, title] of [["/terms", "Terms of Service"], ["/privacy", "Privacy Policy"]]) {
+    await page.goto(BASE + path, { waitUntil: "networkidle" })
+    const h1 = await page.$eval("h1", (el) => el.textContent?.trim() ?? "").catch(() => "")
+    const back = await page.isVisible('a[href="/"]')
+    ok(`legal: ${path} renders with back link`, h1 === title && back, `h1="${h1}"`)
+  }
+  await page.close()
+}
+
 // ---------- reduced motion ----------
 {
   const page = await browser.newPage({
