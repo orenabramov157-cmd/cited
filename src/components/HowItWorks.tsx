@@ -5,6 +5,8 @@ import {
   useScroll,
   useSpring,
   useTransform,
+  useMotionValue,
+  useMotionTemplate,
   useMotionValueEvent,
   type MotionValue,
 } from "framer-motion"
@@ -196,8 +198,28 @@ function PanelShell({
   meta: string
   children: React.ReactNode
 }) {
+  // KokonutUI-style spotlight — a soft cobalt glow that tracks the cursor
+  const mx = useMotionValue(-300)
+  const my = useMotionValue(-300)
+  const spotlight = useMotionTemplate`radial-gradient(230px circle at ${mx}px ${my}px, var(--spotlight), transparent 72%)`
   return (
-    <div className="mt-8 max-w-[520px] overflow-hidden rounded-[var(--r-lg)] border border-border bg-panel shadow-[var(--shadow-panel)]">
+    <div
+      onMouseMove={(e) => {
+        const r = e.currentTarget.getBoundingClientRect()
+        mx.set(e.clientX - r.left)
+        my.set(e.clientY - r.top)
+      }}
+      onMouseLeave={() => {
+        mx.set(-300)
+        my.set(-300)
+      }}
+      className="group relative mt-8 max-w-[520px] overflow-hidden rounded-[var(--r-lg)] border border-border bg-panel shadow-[var(--shadow-panel)] transition-colors duration-300 hover:border-blue/45"
+    >
+      <motion.div
+        aria-hidden
+        style={{ background: spotlight }}
+        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+      />
       <div className="flex items-center justify-between border-b border-border px-5 py-2.5 font-mono text-[9.5px] uppercase tracking-[0.1em]">
         <span className="font-medium text-foreground/85">{title}</span>
         <span className="text-faint">{meta}</span>

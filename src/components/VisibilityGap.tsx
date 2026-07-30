@@ -278,23 +278,17 @@ function AnswerBox() {
         </motion.div>
 
         <div className="mt-5 flex flex-col gap-3 border-t border-border pt-5">
-          {[0, 1, 2].map((i) => (
+          {["Competitor A", "Competitor B", "Competitor C"].map((name, i) => (
             <motion.div
-              key={i}
+              key={name}
               {...riseIn(reduce, 0.12 + i * 0.12)}
               className="flex items-center justify-between gap-4"
             >
-              <span className="flex items-center gap-3 text-[13.5px]">
+              <span className="flex items-baseline gap-3 text-[13.5px]">
                 <span className="font-mono text-[10px] tabular-nums text-faint">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                {/* names withheld — redaction bar, not a fake competitor */}
-                <span
-                  aria-label="competitor name withheld"
-                  className="select-none rounded-[2px] bg-foreground/80 text-transparent"
-                >
-                  Competitor name
-                </span>
+                <span className="font-medium text-foreground">{name}</span>
               </span>
               <span className="font-mono text-[9.5px] uppercase tracking-[0.08em] text-green">
                 named

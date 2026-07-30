@@ -188,10 +188,10 @@ function PressFig({ reduce }: { reduce: boolean | null }) {
     <FigShell title="“10 best jewelers in Dallas”">
       <div className="flex flex-col gap-2">
         {[
-          { i: "01", you: false, w: "w-[72%]" },
-          { i: "02", you: false, w: "w-[58%]" },
-          { i: "03", you: true, w: "" },
-          { i: "04", you: false, w: "w-[64%]" },
+          { i: "01", you: false, name: "Competitor A" },
+          { i: "02", you: false, name: "Competitor B" },
+          { i: "03", you: true, name: "" },
+          { i: "04", you: false, name: "Competitor C" },
         ].map((r, idx) => (
           <motion.div
             key={r.i}
@@ -204,10 +204,7 @@ function PressFig({ reduce }: { reduce: boolean | null }) {
                 you, inserted
               </span>
             ) : (
-              <span
-                aria-label="listing name withheld"
-                className={cn("h-[9px] rounded-[1px] bg-foreground/25", r.w)}
-              />
+              <span className="text-[12px] text-muted-foreground">{r.name}</span>
             )}
           </motion.div>
         ))}
@@ -263,10 +260,13 @@ function ContentFig({ reduce }: { reduce: boolean | null }) {
           “do you resize rings same-day?”
         </div>
       </motion.div>
-      <motion.div {...popIn(reduce, 0.28)} className="mt-3 flex flex-col gap-1.5">
-        <span className="h-[8px] w-[92%] rounded-[1px] bg-border" aria-hidden />
-        <span className="h-[8px] w-[78%] rounded-[1px] bg-border" aria-hidden />
-        <span className="h-[8px] w-[54%] rounded-[1px] bg-border" aria-hidden />
+      <motion.div {...popIn(reduce, 0.28)} className="mt-3">
+        <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-faint">
+          Your page answers
+        </div>
+        <div className="mt-1 border-l-2 border-blue/40 pl-2.5 text-[12px] leading-relaxed text-muted-foreground">
+          “Yes — most rings are resized same-day, in-house, while you wait.”
+        </div>
       </motion.div>
       <motion.div
         {...popIn(reduce, 0.46)}
