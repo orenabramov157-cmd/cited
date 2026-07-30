@@ -21,6 +21,14 @@ export function CloseCta() {
               If your customers are asking AI where to go, this is the difference between
               being in the answer and not existing. Let's get you cited.
             </p>
+            <p className="mt-7 max-w-[52ch] border-l-2 border-yellow pl-4 text-[14px] leading-relaxed text-muted-foreground">
+              <span className="font-medium text-foreground">
+                One business per category, per market.
+              </span>{" "}
+              The AI names three — we don't work both sides of that fight. Dallas
+              jewelry is taken (it's our own case study). Your category in your city
+              may still be open.
+            </p>
           </div>
           <div className="mt-10 lg:col-span-3 lg:mt-0 lg:justify-self-end">
             <Button asChild size="lg">

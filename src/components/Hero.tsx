@@ -103,7 +103,7 @@ export function Hero() {
           className="mt-6 flex items-center justify-between border-t-2 border-ink pt-3 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground"
         >
           <span>AI Visibility Index</span>
-          <span className="hidden sm:inline">Local &amp; luxury retail · Dallas — Fort Worth</span>
+          <span className="hidden sm:inline">High-ticket local businesses · One client per market</span>
           <span className="inline-flex items-center gap-2 text-foreground/70">
             <span className="size-[6px] rounded-full bg-yellow" />
             Baseline in progress
