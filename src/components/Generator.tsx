@@ -108,8 +108,7 @@ export function Generator() {
               <span className="hl-yellow">30 seconds.</span>
             </h2>
             <p className="mt-5 max-w-[38ch] text-[16px] leading-relaxed text-muted-foreground">
-              Tell the instrument your business and city. It drafts the exact six-agent
-              team that would get you recommended, named for your trade, right now.
+              Business and city in. Your six-agent team out, named for your trade.
             </p>
             <p className="mt-6 max-w-[34ch] border-l-2 border-border-strong pl-4 font-mono text-[11px] leading-relaxed text-faint">
               Instrument v1 · client-side estimate. A live audit runs your real queries

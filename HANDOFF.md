@@ -41,10 +41,10 @@ The owner validates every external change back in Claude Code with:
 Anything that breaks either gets reverted without discussion. Small,
 reviewable commits survive; repo-wide rewrites don't.
 
-## READY-MADE TASK: copy cuts ("mom pass", part 2)
+## DONE 2026-07-31 — copy cuts ("mom pass", part 2) — DO NOT REDO
 
-Goal: fewer words, same claims. The diagrams carry the story. Apply these
-exact replacements (font sizes were already bumped in part 1):
+Already applied in-repo. Kept below only as the reference for the site's
+copy voice: short, punchy, no em dashes, claims unchanged.
 
 - Hero lead: "Your buyers stopped Googling. They ask ChatGPT, Perplexity and
   Gemini, and the machine names a handful of businesses." →

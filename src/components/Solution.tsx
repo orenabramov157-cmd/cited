@@ -17,32 +17,32 @@ const AGENTS = [
   {
     tag: "Citations",
     n: "Citation Hunter",
-    d: "Gets you cited by the sources AI already trusts: the lists, directories and press it pulls its answers from. The single biggest lever on who gets named.",
+    d: "Gets you cited by the sources AI already trusts. The biggest lever on who gets named.",
   },
   {
     tag: "Schema",
     n: "Schema Architect",
-    d: "Marks up your site so AI can cleanly extract your offers, hours and reviews. Machine-readable, not guesswork.",
+    d: "Makes your site machine-readable. No guesswork.",
   },
   {
     tag: "Reviews",
     n: "Review Engine",
-    d: "Pushes your rating past the thresholds AI checks, and keeps reviews fresh, spread and recent.",
+    d: "Pushes your rating past the bar AI checks.",
   },
   {
     tag: "Press",
     n: "Listicle Infiltrator",
-    d: "Gets you into the “best of” roundups and local press. In the answer, not just the index.",
+    d: "Gets you into the “best of” lists AI reads.",
   },
   {
     tag: "Entity",
     n: "Entity Aligner",
-    d: "Makes your name, address and identity identical everywhere, so AI trusts you're one established place.",
+    d: "One identity everywhere, so AI trusts you're real.",
   },
   {
     tag: "Content",
     n: "Answer-Page Writer",
-    d: "Writes pages that answer the exact questions buyers ask, so you become the source it quotes.",
+    d: "Writes the answers AI ends up quoting.",
   },
 ]
 
@@ -314,8 +314,8 @@ export function Solution() {
             }
           />
           <p className="max-w-[38ch] text-[16px] leading-relaxed text-muted-foreground lg:pb-1.5 lg:text-right">
-            Each owns a lever AI weighs when it decides who to name. You don't manage
-            them. We run the playbook and prove the movement on your own queries.
+            Each owns a lever AI weighs when deciding who to name.{" "}
+            We run them. You see the lift.
           </p>
         </div>
 

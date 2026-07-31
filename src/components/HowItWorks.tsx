@@ -20,25 +20,25 @@ const STEPS = [
     k: "Baseline",
     color: "var(--ink)",
     title: "First, the uncomfortable snapshot.",
-    d: "We run your real buyer questions across ChatGPT, Perplexity, Gemini & Claude. Three passes each, screenshots kept. Do they name you?",
+    d: "Your real buyer questions, four engines, three passes. Do they name you?",
   },
   {
     k: "Diagnose",
     color: "var(--primary-blue)",
     title: "Trace why the machine picked them.",
-    d: "For every query a competitor wins, we trace the exact sources the AI leaned on, and where your signals are thin.",
+    d: "Every loss traced to the sources the AI leaned on.",
   },
   {
     k: "Fix",
     color: "var(--primary-blue)",
     title: "Move the signals that decide it.",
-    d: "Citations, schema, reviews and answer-content, shipped in sequence, not sprayed. The moves that change who gets named.",
+    d: "The moves that change who gets named, shipped in sequence.",
   },
   {
     k: "Re-measure",
     color: "var(--data-green)",
     title: "Same questions. Different answer.",
-    d: "Re-run the identical queries under the same protocol. Absent → named, in black and white.",
+    d: "Same questions again. Absent → named, in black and white.",
   },
 ]
 
@@ -128,8 +128,7 @@ export function HowItWorks() {
           }
           lead={
             <>
-              The whole engagement is a before-and-after on your real customer questions,
-              so you see the lift, not a vibe.
+              A before-and-after on your real customer questions. Lift, not vibes.
             </>
           }
         />

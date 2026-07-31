@@ -132,8 +132,8 @@ export function Hero() {
               transition={{ duration: 0.55, ease: EASE_REVEAL, delay: 0.42 }}
               className="mt-8 max-w-[46ch] text-lead text-muted-foreground"
             >
-              Your buyers stopped Googling. They ask ChatGPT, Perplexity and Gemini, and
-              the machine names a handful of businesses.{" "}
+              Buyers stopped Googling. They ask AI, and it names a handful of
+              businesses.{" "}
               <span className="font-medium text-foreground">
                 Cited makes sure you're one of them.
               </span>

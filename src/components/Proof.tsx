@@ -33,9 +33,8 @@ export function Proof() {
               }
               lead={
                 <>
-                  We're running the method on our own Dallas fine-jewelry store first.
-                  Same queries, same engines, before and after. The scorecard below fills
-                  in as dated evidence lands. No numbers until they're real.
+                  Client zero: our own Dallas jewelry store. The scorecard fills in as
+                  dated evidence lands. No numbers until they're real.
                 </>
               }
             />
@@ -101,9 +100,9 @@ export function Proof() {
               </h3>
               <ol className="mt-5 flex flex-col gap-4">
                 {[
-                  ["01", "A baseline scorecard of your real buyer questions: where you stand today, engine by engine."],
-                  ["02", "The fixes, executed for you and reported by category: citations, structure, reviews, content."],
-                  ["03", "The same scorecard re-run. The lift, or the refund conversation, in black and white."],
+                  ["01", "Baseline scorecard: where you stand, engine by engine."],
+                  ["02", "Fixes executed for you, reported by category."],
+                  ["03", "Scorecard re-run. The lift in black and white."],
                 ].map(([n, t]) => (
                   <li key={n} className="grid grid-cols-[auto_1fr] gap-3">
                     <span className="font-mono text-[11px] font-medium text-blue tabular-nums">
@@ -121,9 +120,7 @@ export function Proof() {
                 <p className="text-[14px] leading-relaxed text-muted-foreground">
                   <span className="font-medium text-foreground">
                     You get the lift and the evidence. The recipe stays in-house.
-                  </span>{" "}
-                  Which sources, in what order, with what scripts: that's the product,
-                  and it isn't published anywhere.
+                  </span>
                 </p>
               </div>
             </Rise>

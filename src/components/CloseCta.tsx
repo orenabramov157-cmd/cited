@@ -19,17 +19,14 @@ export function CloseCta() {
               <span className="hl-yellow">their machine says.</span>
             </h2>
             <p className="mt-6 max-w-[50ch] text-lead text-muted-foreground">
-              If your customers are asking AI where to go, this is the difference between
-              being in the answer and not existing. Let's get you cited. It often starts
-              as simply as getting you onto the few lists the machines already trust.
+              Being in the answer is the whole game. It often starts with the few
+              lists the machines already trust.
             </p>
             <p className="mt-7 max-w-[52ch] border-l-2 border-yellow pl-4 text-[15px] leading-relaxed text-muted-foreground">
               <span className="font-medium text-foreground">
                 One business per category, per market.
               </span>{" "}
-              The AI names three, and we don't work both sides of that fight. Dallas
-              jewelry is taken (it's our own case study). Your category in your city
-              may still be open.
+              Dallas jewelry is taken. Yours may still be open.
             </p>
           </Rise>
           <div className="mt-10 lg:col-span-3 lg:mt-0 lg:justify-self-end">
@@ -49,15 +46,14 @@ export function CloseCta() {
               About Cited
             </Eyebrow>
             <p className="hidden max-w-[44ch] text-right text-[14px] leading-relaxed text-muted-foreground md:block">
-              The best shop in town should be the one the machine names. We close
-              that gap, measurably, one market at a time.
+              The best shop in town should be the one the machine names.
             </p>
           </div>
           <div className="mt-5 grid gap-6 sm:grid-cols-3">
             {[
-              ["green", "Evidence first", "Dated screenshots, repeat runs. If we can't measure it, we don't say it."],
-              ["blue", "Skin in the game", "Born inside our own 35-year family jewelry store. Client zero is us."],
-              ["yellow", "One per market", "The AI names three. We never work both sides of the same answer."],
+              ["green", "Evidence first", "Dated screenshots, repeat runs. No claims without them."],
+              ["blue", "Skin in the game", "Born in our 35-year family jewelry store. Client zero is us."],
+              ["yellow", "One per market", "The AI names three. We take one side."],
             ].map(([tone, k, d]) => (
               <div key={k} className="grid grid-cols-[auto_1fr] gap-x-3">
                 <span className="mt-[6px]">

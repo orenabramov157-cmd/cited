@@ -111,16 +111,15 @@ export function VisibilityGap() {
             }
             lead={
               <>
-                Nobody scrolls ten blue links anymore. They ask one question and take the
-                few names the answer gives back. If you're not in it, the customer
-                never learns you exist.
+                One question in, a few names out. If you're not one of them, you
+                don't exist.
               </>
             }
           />
           {/* marginal annotation — counterweight, top right */}
           <div className="mt-8 lg:col-span-4 lg:col-start-9 lg:mt-2">
             <p className="border-l-2 border-coral pl-4 text-[15.5px] leading-relaxed text-muted-foreground">
-              Right now, for the queries that matter,{" "}
+              Right now,{" "}
               <span className="font-medium text-coral">the AI is naming your competitors.</span>
             </p>
           </div>
@@ -133,8 +132,8 @@ export function VisibilityGap() {
               <CountNumber value={45} suffix="%" />
             </div>
             <p className="mt-3 max-w-[24ch] text-[15.5px] leading-relaxed text-muted-foreground">
-              of buyers now ask AI to find a local business.{" "}
-              <span className="font-medium text-foreground">And it climbs every quarter.</span>
+              of buyers ask AI to find local businesses.{" "}
+              <span className="font-medium text-foreground">Climbing every quarter.</span>
             </p>
             <div className="mt-5 border-t border-border pt-4">
               <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-faint">
@@ -397,8 +396,8 @@ function FlowCompare() {
             <CountNumber value={1.2} decimals={1} prefix="~" suffix="%" />
           </div>
           <p className="max-w-[30ch] text-[14.5px] leading-snug text-muted-foreground">
-            of local businesses surface in AI answers today.{" "}
-            <span className="font-medium text-foreground">The field is wide open.</span>
+            of local businesses show up in AI answers.{" "}
+            <span className="font-medium text-foreground">Wide open.</span>
           </p>
         </motion.div>
       </div>
