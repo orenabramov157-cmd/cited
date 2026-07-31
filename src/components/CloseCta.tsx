@@ -1,21 +1,14 @@
-import { motion, useReducedMotion } from "framer-motion"
 import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Container, Eyebrow, Marker } from "@/components/primitives"
+import { Rise } from "@/components/Rise"
 
 export function CloseCta() {
-  const reduce = useReducedMotion()
   return (
     <section id="start" className="relative border-t border-border bg-panel py-12 md:py-14">
       <Container>
         <div className="lg:grid lg:grid-cols-12 lg:items-end lg:gap-8">
-          <motion.div
-            initial={reduce ? false : { opacity: 0, y: 28, scale: 0.95 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: false, amount: 0.3 }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="lg:col-span-9"
-          >
+          <Rise amount={46} className="lg:col-span-9">
             <Eyebrow tone="blue">
               <Marker tone="blue" />
               Get started
@@ -38,7 +31,7 @@ export function CloseCta() {
               jewelry is taken (it's our own case study). Your category in your city
               may still be open.
             </p>
-          </motion.div>
+          </Rise>
           <div className="mt-10 lg:col-span-3 lg:mt-0 lg:justify-self-end">
             <Button asChild size="lg">
               <a href="#build">
@@ -49,14 +42,7 @@ export function CloseCta() {
         </div>
 
         {/* about strip: mission + what we stand on, compact */}
-        <motion.div
-          id="about"
-          initial={reduce ? false : { opacity: 0, y: 24, scale: 0.97 }}
-          whileInView={{ opacity: 1, y: 0, scale: 1 }}
-          viewport={{ once: false, amount: 0.35 }}
-          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-12 border-t border-border pt-7"
-        >
+        <Rise amount={30} id="about" className="mt-12 border-t border-border pt-7">
           <div className="flex items-baseline justify-between gap-6">
             <Eyebrow tone="blue">
               <Marker tone="blue" />
@@ -84,7 +70,7 @@ export function CloseCta() {
               </div>
             ))}
           </div>
-        </motion.div>
+        </Rise>
       </Container>
     </section>
   )

@@ -9,6 +9,7 @@ import {
 } from "framer-motion"
 import { ArrowRight } from "lucide-react"
 import { Container, SectionHeading } from "@/components/primitives"
+import { Rise } from "@/components/Rise"
 import { cn } from "@/lib/utils"
 import { EASE_REVEAL } from "@/lib/motion"
 
@@ -346,10 +347,8 @@ export function Solution() {
           {rest.map((a, i) => {
             const Fig = FIGS[i + 1]
             return (
-              <li
-                key={a.n}
-                className="group flex flex-col gap-3 border-t border-border py-5"
-              >
+              <li key={a.n} className="group border-t border-border py-5">
+                <Rise amount={30 + (i % 3) * 16} className="flex flex-col gap-3">
                 <div className="flex items-baseline gap-3">
                   <span className="font-display text-[1.7rem] font-[680] leading-none tracking-[-0.02em] text-faint tnum transition-colors duration-200 group-hover:text-blue">
                     {String(i + 2).padStart(2, "0")}
@@ -371,6 +370,7 @@ export function Solution() {
                     <Fig reduce={reduce} />
                   </Drift>
                 </div>
+                </Rise>
               </li>
             )
           })}

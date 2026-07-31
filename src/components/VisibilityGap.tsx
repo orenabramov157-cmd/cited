@@ -20,6 +20,7 @@ import {
 } from "framer-motion"
 import { ArrowRight } from "lucide-react"
 import { Container, SectionHeading } from "@/components/primitives"
+import { Rise } from "@/components/Rise"
 import { CountNumber } from "@/components/CountNumber"
 import { EASE_REVEAL } from "@/lib/motion"
 
@@ -252,12 +253,12 @@ export function VisibilityGap() {
 
         {/* the consequence, drawn — answer box + then/now flow */}
         <div className="mt-8 grid gap-6 border-t border-border pt-7 lg:mt-10 lg:grid-cols-12">
-          <div className="lg:col-span-6">
+          <Rise amount={54} className="lg:col-span-6">
             <AnswerBox />
-          </div>
-          <div className="lg:col-span-6">
+          </Rise>
+          <Rise amount={30} className="lg:col-span-6">
             <FlowCompare />
-          </div>
+          </Rise>
         </div>
       </Container>
     </section>

@@ -70,26 +70,19 @@ export default function App() {
     <>
       <Nav />
       <main>
-        {/* Hero pins; the rest of the page slides up OVER it on first scroll. */}
-        <div className="sticky top-0 z-0">
-          <Hero />
-        </div>
-        <div className="relative z-10 bg-background">
-          <NearViewport id="problem" minHeight={520}>
-            <Suspense fallback={<div className="h-[520px]" aria-hidden />}>
-              <VisibilityGap />
-            </Suspense>
-          </NearViewport>
-          <Solution />
-          <HowItWorks />
-          <Proof />
-          <Generator />
-          <CloseCta />
-        </div>
+        <Hero />
+        <NearViewport id="problem" minHeight={520}>
+          <Suspense fallback={<div className="h-[520px]" aria-hidden />}>
+            <VisibilityGap />
+          </Suspense>
+        </NearViewport>
+        <Solution />
+        <HowItWorks />
+        <Proof />
+        <Generator />
+        <CloseCta />
       </main>
-      <div className="relative z-10 bg-background">
-        <SiteFooter />
-      </div>
+      <SiteFooter />
     </>
   )
 }

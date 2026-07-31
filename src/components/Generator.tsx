@@ -3,6 +3,7 @@ import { motion, animate, AnimatePresence, useReducedMotion } from "framer-motio
 import { ArrowRight, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Container, Eyebrow, Marker } from "@/components/primitives"
+import { Rise } from "@/components/Rise"
 import { TurnstileWidget, type TurnstileHandle } from "@/components/Turnstile"
 import {
   fetchTeam,
@@ -94,7 +95,7 @@ export function Generator() {
       <Container>
         <div className="lg:grid lg:grid-cols-12 lg:gap-10">
           {/* marginal support — stays on paper */}
-          <div className="lg:col-span-4 lg:pt-3">
+          <Rise amount={30} className="lg:col-span-4 lg:pt-3">
             <div className="flex items-center gap-3.5">
               <span className="font-mono text-caption tabular-nums text-faint">05</span>
               <Eyebrow tone="blue">
@@ -114,10 +115,10 @@ export function Generator() {
               Instrument v1 · client-side estimate. A live audit runs your real queries
               across four engines.
             </p>
-          </div>
+          </Rise>
 
           {/* the instrument — white panel, same language as the rest of the paper */}
-          <div className="mt-10 lg:col-span-8 lg:mt-0">
+          <Rise amount={50} className="mt-10 lg:col-span-8 lg:mt-0">
             <div className="overflow-hidden rounded-[var(--r-xl)] border border-border bg-panel shadow-[var(--shadow-panel)]">
               {/* readout header */}
               <div className="flex items-center justify-between border-b border-border px-6 py-3.5 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
@@ -305,7 +306,7 @@ export function Generator() {
                 </AnimatePresence>
               </motion.div>
             </div>
-          </div>
+          </Rise>
         </div>
       </Container>
     </section>

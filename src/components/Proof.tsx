@@ -1,5 +1,6 @@
 import { Lock, Camera, Repeat2 } from "lucide-react"
 import { Container, SectionHeading } from "@/components/primitives"
+import { Rise } from "@/components/Rise"
 
 /**
  * The proof layer — shows the FORMAT of results with honest live statuses.
@@ -39,7 +40,7 @@ export function Proof() {
               }
             />
 
-            <div className="mt-10 overflow-x-auto">
+            <Rise amount={48} className="mt-10 overflow-x-auto">
               <div className="min-w-[560px] rounded-[var(--r-lg)] border border-border bg-raised">
                 {/* head */}
                 <div className="flex items-center justify-between border-b border-border px-5 py-3 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
@@ -84,7 +85,7 @@ export function Proof() {
                   </span>
                 </div>
               </div>
-            </div>
+            </Rise>
 
             <p className="mt-4 max-w-[64ch] font-mono text-[10.5px] leading-relaxed text-faint">
               Claim format once live: “absent → named in X of Y query-runs, cited with
@@ -94,7 +95,7 @@ export function Proof() {
 
           {/* counterweight rail: the client-side brisk summary */}
           <aside className="mt-12 lg:col-span-4 lg:mt-24">
-            <div className="border-t-2 border-ink pt-6 dark:border-border-strong">
+            <Rise amount={64} className="border-t-2 border-ink pt-6 dark:border-border-strong">
               <h3 className="font-display text-h3 font-[640] tracking-[-0.01em]">
                 What you see as a client
               </h3>
@@ -125,7 +126,7 @@ export function Proof() {
                   and it isn't published anywhere.
                 </p>
               </div>
-            </div>
+            </Rise>
           </aside>
         </div>
       </Container>

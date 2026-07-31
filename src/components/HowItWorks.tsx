@@ -12,6 +12,7 @@ import {
 } from "framer-motion"
 import { ArrowRight } from "lucide-react"
 import { Container, SectionHeading } from "@/components/primitives"
+import { Rise } from "@/components/Rise"
 import { cn } from "@/lib/utils"
 
 const STEPS = [
@@ -165,12 +166,7 @@ export function HowItWorks() {
                   "scroll-mt-28 border-t border-border py-7 first:border-t-0 first:pt-0 lg:flex lg:min-h-[32vh] lg:flex-col lg:justify-center lg:py-8"
                 )}
               >
-                <motion.div
-                  initial={reduce ? false : { opacity: 0, y: 26, scale: 0.95 }}
-                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  viewport={{ once: false, amount: 0.25 }}
-                  transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                >
+                <Rise amount={46}>
                   <div className="flex items-baseline gap-2.5 font-mono text-[11px] uppercase tracking-[0.12em]">
                     <span className="tabular-nums text-faint">{String(i + 1).padStart(2, "0")}</span>
                     <span style={{ color: s.color }} className="font-medium">
@@ -184,7 +180,7 @@ export function HowItWorks() {
                     {s.d}
                   </p>
                   {[<BaselinePanel key="b" />, <DiagnosePanel key="d" />, <FixPanel key="f" />, <RemeasurePanel key="r" />][i]}
-                </motion.div>
+                </Rise>
               </article>
             ))}
           </div>
