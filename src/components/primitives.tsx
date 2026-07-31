@@ -1,4 +1,5 @@
 import type { ReactNode } from "react"
+import { motion, useReducedMotion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
 export function Container({
@@ -76,8 +77,15 @@ export function SectionHeading({
   tone?: "blue" | "coral" | "green"
   className?: string
 }) {
+  const reduce = useReducedMotion()
   return (
-    <div className={cn("max-w-[62ch]", className)}>
+    <motion.div
+      initial={reduce ? false : { opacity: 0, y: 26, scale: 0.96 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: false, amount: 0.35 }}
+      transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+      className={cn("max-w-[62ch]", className)}
+    >
       <div className="flex items-center gap-3.5">
         {index ? (
           <span className="font-mono text-caption tabular-nums text-faint">{index}</span>
@@ -91,6 +99,6 @@ export function SectionHeading({
       {lead ? (
         <p className="mt-5 max-w-[56ch] text-lead text-muted-foreground">{lead}</p>
       ) : null}
-    </div>
+    </motion.div>
   )
 }

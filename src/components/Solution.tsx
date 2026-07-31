@@ -16,12 +16,12 @@ const AGENTS = [
   {
     tag: "Citations",
     n: "Citation Hunter",
-    d: "Gets you cited by the sources AI already trusts — the lists, directories and press it pulls its answers from. The single biggest lever on who gets named.",
+    d: "Gets you cited by the sources AI already trusts: the lists, directories and press it pulls its answers from. The single biggest lever on who gets named.",
   },
   {
     tag: "Schema",
     n: "Schema Architect",
-    d: "Marks up your site so AI can cleanly extract your offers, hours and reviews — machine-readable, not guesswork.",
+    d: "Marks up your site so AI can cleanly extract your offers, hours and reviews. Machine-readable, not guesswork.",
   },
   {
     tag: "Reviews",
@@ -31,7 +31,7 @@ const AGENTS = [
   {
     tag: "Press",
     n: "Listicle Infiltrator",
-    d: "Gets you into the “best of” roundups and local press — in the answer, not just the index.",
+    d: "Gets you into the “best of” roundups and local press. In the answer, not just the index.",
   },
   {
     tag: "Entity",
@@ -41,18 +41,18 @@ const AGENTS = [
   {
     tag: "Content",
     n: "Answer-Page Writer",
-    d: "Writes pages that answer the exact questions buyers ask — so you become the source it quotes.",
+    d: "Writes pages that answer the exact questions buyers ask, so you become the source it quotes.",
   },
 ]
 
 /* ---------- motion helpers ---------- */
 
+// Reveals rise up and scale toward the viewer, and replay on every pass.
 const popIn = (reduce: boolean | null, delay = 0) => ({
-  initial: reduce ? false : { opacity: 0, y: 14, scale: 0.98 },
+  initial: reduce ? false : { opacity: 0, y: 26, scale: 0.94 },
   whileInView: { opacity: 1, y: 0, scale: 1 },
-  // replay on every pass — reveals track the scroll in both directions
-  viewport: { once: false, amount: 0.4 },
-  transition: { duration: 0.5, ease: EASE_REVEAL, delay },
+  viewport: { once: false, amount: 0.35 },
+  transition: { duration: 0.55, ease: EASE_REVEAL, delay },
 })
 
 /** Gentle parallax — each figure drifts at its own speed while you scroll. */
@@ -151,7 +151,7 @@ function SchemaFig({ reduce }: { reduce: boolean | null }) {
         {"\n"}  "openingHours": <span className="text-green">"10–18"</span>
         {"\n"}<span className="text-blue">{"}"}</span>
       </motion.pre>
-      <FigFoot>Extracted cleanly — no guesswork</FigFoot>
+      <FigFoot>Extracted cleanly, no guesswork</FigFoot>
     </FigShell>
   )
 }
@@ -171,7 +171,7 @@ function ReviewsFig({ reduce }: { reduce: boolean | null }) {
           />
           <div className="absolute -top-[5px] left-[86%] h-[18px] w-[2px] bg-ink dark:bg-foreground" />
           <div className="absolute right-0 top-[18px] whitespace-nowrap font-mono text-[8.5px] uppercase tracking-[0.06em] text-faint">
-            4.3★ — the bar AI checks
+            4.3★, the bar AI checks
           </div>
         </div>
       </div>
@@ -243,7 +243,7 @@ function EntityFig({ reduce }: { reduce: boolean | null }) {
         className="mt-3 flex items-center gap-2 font-mono text-[8.5px] uppercase tracking-[0.08em] text-green"
       >
         <span className="size-[6px] rounded-[1px] bg-green" aria-hidden />
-        identical — aligned
+        identical, aligned
       </motion.div>
       <FigFoot>Mismatch reads as three unknown places</FigFoot>
     </FigShell>
@@ -266,7 +266,7 @@ function ContentFig({ reduce }: { reduce: boolean | null }) {
           Your page answers
         </div>
         <div className="mt-1 border-l-2 border-blue/40 pl-2.5 text-[12px] leading-relaxed text-muted-foreground">
-          “Yes — most rings are resized same-day, in-house, while you wait.”
+          “Yes. Most rings are resized same-day, in-house, while you wait.”
         </div>
       </motion.div>
       <motion.div
@@ -299,7 +299,7 @@ export function Solution() {
   const LeadFig = FIGS[0]
 
   return (
-    <section ref={sectionRef} id="solution" className="relative py-10 md:py-14">
+    <section ref={sectionRef} id="solution" className="relative py-8 md:py-12">
       <Container>
         <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
           <SectionHeading
@@ -314,7 +314,7 @@ export function Solution() {
           />
           <p className="max-w-[38ch] text-[15px] leading-relaxed text-muted-foreground lg:pb-1.5 lg:text-right">
             Each owns a lever AI weighs when it decides who to name. You don't manage
-            them — we run the playbook and prove the movement on your own queries.
+            them. We run the playbook and prove the movement on your own queries.
           </p>
         </div>
 
@@ -327,7 +327,7 @@ export function Solution() {
             {/* fixed dark literal, not text-ink: --yellow doesn't change in
                 dark mode but --ink does, which dropped this to ~1.3:1 */}
             <span className="inline-block rounded-[3px] bg-yellow px-2 py-0.5 font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-[#171717]">
-              Lever — {lead.tag}
+              Lever: {lead.tag}
             </span>
             <h3 className="mt-3 font-display text-h2 font-[640] tracking-[-0.02em]">
               The {lead.n}
@@ -350,7 +350,7 @@ export function Solution() {
               <li
                 key={a.n}
                 className={cn(
-                  "group grid grid-cols-[auto_1fr] items-start gap-x-6 gap-y-6 py-6 sm:gap-x-10 lg:grid-cols-[auto_1fr_auto]",
+                  "group grid grid-cols-[auto_1fr] items-start gap-x-6 gap-y-6 py-5 sm:gap-x-10 lg:grid-cols-[auto_1fr_auto]",
                   indented
                     ? "border-t border-hair lg:ml-[10%]"
                     : "border-t border-border lg:mr-[7%]"

@@ -19,19 +19,19 @@ const STEPS = [
     k: "Baseline",
     color: "var(--ink)",
     title: "First, the uncomfortable snapshot.",
-    d: "We run your real buyer questions across ChatGPT, Perplexity, Gemini & Claude — three passes each, screenshots kept. Do they name you?",
+    d: "We run your real buyer questions across ChatGPT, Perplexity, Gemini & Claude. Three passes each, screenshots kept. Do they name you?",
   },
   {
     k: "Diagnose",
     color: "var(--primary-blue)",
     title: "Trace why the machine picked them.",
-    d: "For every query a competitor wins, we trace the exact sources the AI leaned on — and where your signals are thin.",
+    d: "For every query a competitor wins, we trace the exact sources the AI leaned on, and where your signals are thin.",
   },
   {
     k: "Fix",
     color: "var(--primary-blue)",
     title: "Move the signals that decide it.",
-    d: "Citations, schema, reviews and answer-content — shipped in sequence, not sprayed. The moves that change who gets named.",
+    d: "Citations, schema, reviews and answer-content, shipped in sequence, not sprayed. The moves that change who gets named.",
   },
   {
     k: "Re-measure",
@@ -113,7 +113,7 @@ export function HowItWorks() {
   }
 
   return (
-    <section id="how" className="relative border-t border-border py-10 md:py-14">
+    <section id="how" className="relative border-t border-border py-8 md:py-12">
       <Container>
         <SectionHeading
           eyebrow="The Method"
@@ -127,7 +127,7 @@ export function HowItWorks() {
           }
           lead={
             <>
-              The whole engagement is a before-and-after on your real customer questions —
+              The whole engagement is a before-and-after on your real customer questions,
               so you see the lift, not a vibe.
             </>
           }
@@ -162,22 +162,29 @@ export function HowItWorks() {
                 key={s.k}
                 id={`how-step-${i}`}
                 className={cn(
-                  "scroll-mt-28 border-t border-border py-8 first:border-t-0 first:pt-0 lg:flex lg:min-h-[44vh] lg:flex-col lg:justify-center lg:py-10"
+                  "scroll-mt-28 border-t border-border py-7 first:border-t-0 first:pt-0 lg:flex lg:min-h-[38vh] lg:flex-col lg:justify-center lg:py-8"
                 )}
               >
-                <div className="flex items-baseline gap-2.5 font-mono text-[11px] uppercase tracking-[0.12em]">
-                  <span className="tabular-nums text-faint">{String(i + 1).padStart(2, "0")}</span>
-                  <span style={{ color: s.color }} className="font-medium">
-                    {s.k}
-                  </span>
-                </div>
-                <h3 className="mt-4 max-w-[24ch] font-display text-[1.6rem] font-[620] leading-[1.15] tracking-[-0.02em] sm:text-[1.85rem]">
-                  {s.title}
-                </h3>
-                <p className="mt-4 max-w-[52ch] text-[15px] leading-relaxed text-muted-foreground">
-                  {s.d}
-                </p>
-                {[<BaselinePanel key="b" />, <DiagnosePanel key="d" />, <FixPanel key="f" />, <RemeasurePanel key="r" />][i]}
+                <motion.div
+                  initial={reduce ? false : { opacity: 0, y: 26, scale: 0.95 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  viewport={{ once: false, amount: 0.25 }}
+                  transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <div className="flex items-baseline gap-2.5 font-mono text-[11px] uppercase tracking-[0.12em]">
+                    <span className="tabular-nums text-faint">{String(i + 1).padStart(2, "0")}</span>
+                    <span style={{ color: s.color }} className="font-medium">
+                      {s.k}
+                    </span>
+                  </div>
+                  <h3 className="mt-4 max-w-[24ch] font-display text-[1.6rem] font-[620] leading-[1.15] tracking-[-0.02em] sm:text-[1.85rem]">
+                    {s.title}
+                  </h3>
+                  <p className="mt-4 max-w-[52ch] text-[15px] leading-relaxed text-muted-foreground">
+                    {s.d}
+                  </p>
+                  {[<BaselinePanel key="b" />, <DiagnosePanel key="d" />, <FixPanel key="f" />, <RemeasurePanel key="r" />][i]}
+                </motion.div>
               </article>
             ))}
           </div>
@@ -252,7 +259,7 @@ function BaselinePanel() {
       </div>
       <div className="mt-4 flex items-center gap-2 border-t border-border pt-3 font-mono text-[9.5px] uppercase tracking-[0.08em] text-faint">
         <span className="size-[9px] rounded-[1px] bg-coral/75" aria-hidden />
-        competitor named — you, absent
+        competitor named · you, absent
       </div>
     </PanelShell>
   )
@@ -280,7 +287,7 @@ function DiagnosePanel() {
         ))}
       </div>
       <div className="mt-4 border-t border-border pt-3 font-mono text-[9.5px] uppercase tracking-[0.08em] text-faint">
-        categories shown — the source map itself stays in-house
+        categories shown. The source map stays in-house
       </div>
     </PanelShell>
   )
@@ -330,7 +337,7 @@ function RemeasurePanel() {
         ))}
       </div>
       <div className="mt-4 border-t border-border pt-3 font-mono text-[9.5px] uppercase tracking-[0.08em] text-faint">
-        the goal state — every claim ships with dated screenshots
+        the goal state. Every claim ships with dated screenshots
       </div>
     </PanelShell>
   )

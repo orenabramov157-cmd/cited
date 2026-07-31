@@ -45,11 +45,11 @@ function Terms() {
       <H2>2. The sketch tool</H2>
       <P>
         The generator on this site drafts an illustrative "visibility team" from two
-        inputs — a business type and a city. It is a sketch, produced automatically,
+        inputs: a business type and a city. It is a sketch, produced automatically,
         for exploration only. It is not professional advice, not an audit, not a
         contractual offer, and you should not rely on it as any of those. Please don't
-        submit confidential information, trade secrets, or personal data about anyone —
-        the tool doesn't need it and isn't designed for it. We may rate-limit, apply
+        submit confidential information, trade secrets, or personal data about anyone.
+        The tool doesn't need it and isn't designed for it. We may rate-limit, apply
         bot checks, or decline requests to keep the tool available.
       </P>
 
@@ -58,14 +58,14 @@ function Terms() {
         Actual visibility work is provided under a separate written agreement, not
         through this site. Nothing here constitutes an offer to serve any particular
         business. Our one-business-per-category-per-market policy is a service
-        principle applied at our discretion and subject to availability — it is not a
+        principle applied at our discretion and subject to availability. It is not a
         reservation system and confers no rights until an agreement is signed.
       </P>
 
       <H2>4. No outcome guarantees</H2>
       <P>
-        The AI systems we work around — ChatGPT, Perplexity, Gemini, Claude, and
-        others — are operated by third parties, change constantly, and produce
+        The AI systems we work around (ChatGPT, Perplexity, Gemini, Claude, and
+        others) are operated by third parties, change constantly, and produce
         probabilistic answers. We commit to honest measurement: dated evidence,
         repeated runs, and before/after comparisons. We do not and cannot guarantee
         that any system will name, rank, or recommend any business, or that any
@@ -75,9 +75,9 @@ function Terms() {
 
       <H2>5. Intellectual property</H2>
       <P>
-        The content of this site belongs to us. More importantly: our methodology —
+        The content of this site belongs to us. More importantly: our methodology,
         including source maps, fix sequences, thresholds, scripts, playbooks, and
-        internal processes — remains our sole property. Viewing this site or engaging
+        internal processes, remains our sole property. Viewing this site or engaging
         us does not transfer or license any of it. Deliverables and reports we
         prepare for a client under a written agreement belong to that client;
         the method used to produce them does not.
@@ -126,7 +126,7 @@ function Privacy() {
 
       <P>
         Short version: no accounts, no ad trackers, no analytics scripts, and we
-        don't sell data. The sketch tool sends only what you type into it — a
+        don't sell data. The sketch tool sends only what you type into it: a
         business type and a city.
       </P>
 
@@ -136,13 +136,13 @@ function Privacy() {
           <strong className="text-foreground">Sketch inputs.</strong> When live
           drafting is enabled, the business type and city you enter are sent to our
           server function and forwarded to Anthropic (Claude) to draft your team. We
-          process them transiently and do not store them — there is no database
+          process them transiently and do not store them; there is no database
           behind this site. When live drafting is unavailable, the sketch is
           generated entirely in your browser and your inputs never leave it.
         </LI>
         <LI>
           <strong className="text-foreground">Email.</strong> "Email me this team"
-          opens a pre-filled draft in your own mail app — nothing is sent to us
+          opens a pre-filled draft in your own mail app. Nothing is sent to us
           unless you choose to send it. Emails you send become ordinary
           correspondence we retain like any business would.
         </LI>
@@ -200,7 +200,7 @@ function Privacy() {
 export function LegalPage({ doc }: { doc: "terms" | "privacy" }) {
   useEffect(() => {
     document.title =
-      doc === "terms" ? "Terms of Service — Cited" : "Privacy Policy — Cited"
+      doc === "terms" ? "Terms of Service · Cited" : "Privacy Policy · Cited"
     window.scrollTo(0, 0)
   }, [doc])
 

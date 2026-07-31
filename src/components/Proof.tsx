@@ -15,7 +15,7 @@ const ROWS = [
 
 export function Proof() {
   return (
-    <section id="proof" className="relative border-t border-border bg-panel py-10 md:py-14">
+    <section id="proof" className="relative border-t border-border bg-panel py-8 md:py-12">
       <Container>
         <div className="lg:grid lg:grid-cols-12 lg:gap-10">
           {/* dominant mass: the live scorecard */}
@@ -32,8 +32,8 @@ export function Proof() {
               }
               lead={
                 <>
-                  We're running the method on our own Dallas fine-jewelry store first —
-                  same queries, same engines, before and after. The scorecard below fills
+                  We're running the method on our own Dallas fine-jewelry store first.
+                  Same queries, same engines, before and after. The scorecard below fills
                   in as dated evidence lands. No numbers until they're real.
                 </>
               }
@@ -70,8 +70,8 @@ export function Proof() {
                     <span className="font-mono text-[10.5px] text-muted-foreground">
                       {r.engines}
                     </span>
-                    <span className="font-mono text-[12px] text-faint">— logging</span>
-                    <span className="font-mono text-[12px] text-faint">— queued</span>
+                    <span className="font-mono text-[12px] text-faint">· logging</span>
+                    <span className="font-mono text-[12px] text-faint">· queued</span>
                   </div>
                 ))}
 
@@ -80,7 +80,7 @@ export function Proof() {
                     <Camera size={11} /> dated screenshots
                   </span>
                   <span className="inline-flex items-center gap-1.5">
-                    <Repeat2 size={11} /> every query run 3× — a result counts only if it repeats
+                    <Repeat2 size={11} /> every query run 3×. A result counts only if it repeats
                   </span>
                 </div>
               </div>
@@ -88,7 +88,7 @@ export function Proof() {
 
             <p className="mt-4 max-w-[64ch] font-mono text-[10.5px] leading-relaxed text-faint">
               Claim format once live: “absent → named in X of Y query-runs, cited with
-              link in Z” — engine and date attached. Aggregates only.
+              link in Z”, engine and date attached. Aggregates only.
             </p>
           </div>
 
@@ -100,9 +100,9 @@ export function Proof() {
               </h3>
               <ol className="mt-5 flex flex-col gap-4">
                 {[
-                  ["01", "A baseline scorecard of your real buyer questions — where you stand today, engine by engine."],
+                  ["01", "A baseline scorecard of your real buyer questions: where you stand today, engine by engine."],
                   ["02", "The fixes, executed for you and reported by category: citations, structure, reviews, content."],
-                  ["03", "The same scorecard re-run. The lift — or the refund conversation — in black and white."],
+                  ["03", "The same scorecard re-run. The lift, or the refund conversation, in black and white."],
                 ].map(([n, t]) => (
                   <li key={n} className="grid grid-cols-[auto_1fr] gap-3">
                     <span className="font-mono text-[11px] font-medium text-blue tabular-nums">
@@ -119,7 +119,7 @@ export function Proof() {
                 <Lock size={15} className="mt-0.5 shrink-0 text-blue" />
                 <p className="text-[13px] leading-relaxed text-muted-foreground">
                   <span className="font-medium text-foreground">
-                    You get the lift and the evidence — the recipe stays in-house.
+                    You get the lift and the evidence. The recipe stays in-house.
                   </span>{" "}
                   Which sources, in what order, with what scripts: that's the product,
                   and it isn't published anywhere.

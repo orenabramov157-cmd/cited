@@ -94,7 +94,7 @@ export function VisibilityGap() {
   return (
     <section
       ref={sectionRef}
-      className="relative border-y border-border bg-panel py-10 md:py-14"
+      className="relative border-y border-border bg-panel py-8 md:py-12"
     >
       <Container>
         <div className="lg:grid lg:grid-cols-12 lg:gap-8">
@@ -111,7 +111,7 @@ export function VisibilityGap() {
             lead={
               <>
                 Nobody scrolls ten blue links anymore. They ask one question and take the
-                few names the answer gives back — and if you're not in it, the customer
+                few names the answer gives back. If you're not in it, the customer
                 never learns you exist.
               </>
             }
@@ -132,8 +132,8 @@ export function VisibilityGap() {
               <CountNumber value={45} suffix="%" />
             </div>
             <p className="mt-3 max-w-[24ch] text-[14.5px] leading-relaxed text-muted-foreground">
-              of buyers now ask AI to find a local business —{" "}
-              <span className="font-medium text-foreground">and it climbs every quarter.</span>
+              of buyers now ask AI to find a local business.{" "}
+              <span className="font-medium text-foreground">And it climbs every quarter.</span>
             </p>
             <div className="mt-5 border-t border-border pt-4">
               <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-faint">
@@ -160,7 +160,7 @@ export function VisibilityGap() {
                 share %
               </span>
             </div>
-            <div ref={chartRef} className="relative h-[250px] w-full sm:h-[310px]">
+            <div ref={chartRef} className="relative h-[230px] w-full sm:h-[280px]">
               {/* scroll-linked wipe: hides the not-yet-"drawn" part of the trend */}
               {inView && !reduce && (
                 <motion.div
@@ -244,7 +244,7 @@ export function VisibilityGap() {
               )}
             </div>
             <p className="mt-3 font-mono text-[10px] leading-relaxed text-faint">
-              Directional — vendor-reported ranges, shown to illustrate the shift, not a
+              Directional: vendor-reported ranges. Illustrates the shift, not a
               guarantee.
             </p>
           </div>
@@ -266,12 +266,12 @@ export function VisibilityGap() {
 
 /* ---------- the answer box — "3 names, then it stops", visualized ---------- */
 
+// Reveals rise up and scale toward the viewer, and replay on every pass.
 const riseIn = (reduce: boolean | null, delay: number) => ({
-  initial: reduce ? false : { opacity: 0, y: 10 },
-  whileInView: { opacity: 1, y: 0 },
-  // replay on every pass — reveals track the scroll in both directions
-  viewport: { once: false, amount: 0.5 },
-  transition: { duration: 0.45, ease: EASE_REVEAL, delay },
+  initial: reduce ? false : { opacity: 0, y: 26, scale: 0.95 },
+  whileInView: { opacity: 1, y: 0, scale: 1 },
+  viewport: { once: false, amount: 0.4 },
+  transition: { duration: 0.55, ease: EASE_REVEAL, delay },
 })
 
 function AnswerBox() {
@@ -313,7 +313,7 @@ function AnswerBox() {
 
           <motion.div
             {...riseIn(reduce, 0.55)}
-            className="flex items-center justify-between gap-4 border-t border-dashed border-border pt-3"
+            className="flex items-center justify-between gap-4 border-t border-border pt-3"
           >
             <span className="flex items-center gap-3 text-[13.5px]">
               <span className="font-mono text-[10px] tabular-nums text-faint">04</span>
@@ -326,7 +326,7 @@ function AnswerBox() {
         </div>
 
         <div className="mt-auto border-t border-border pt-3.5 font-mono text-[9.5px] uppercase leading-relaxed tracking-[0.08em] text-faint">
-          The answer, illustrated — your name appears here, or nowhere
+          The answer, illustrated. Your name appears here, or nowhere
         </div>
       </div>
     </div>
@@ -362,7 +362,7 @@ function FlowCompare() {
       <div className="flex flex-1 flex-col px-5 py-5">
         <motion.div {...riseIn(reduce, 0)}>
           <div className="font-mono text-[10px] uppercase tracking-[0.1em] text-faint">
-            Then — the search era
+            Then: the search era
           </div>
           <div className="mt-2.5 flex flex-wrap items-center gap-2 opacity-75">
             <Chip>Google it</Chip>
@@ -377,7 +377,7 @@ function FlowCompare() {
 
         <motion.div {...riseIn(reduce, 0.18)} className="mt-6 border-t border-border pt-5">
           <div className="font-mono text-[10px] uppercase tracking-[0.1em] text-blue">
-            Now — the answer era
+            Now: the answer era
           </div>
           <div className="mt-2.5 flex flex-wrap items-center gap-2">
             <Chip tone="blue">ask AI</Chip>

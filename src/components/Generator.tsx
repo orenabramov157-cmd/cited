@@ -90,7 +90,7 @@ export function Generator() {
   const status = STATUS[state]
 
   return (
-    <section id="build" className="relative border-t border-border py-10 md:py-14">
+    <section id="build" className="relative border-t border-border py-8 md:py-12">
       <Container>
         <div className="lg:grid lg:grid-cols-12 lg:gap-10">
           {/* marginal support — stays on paper */}
@@ -99,7 +99,7 @@ export function Generator() {
               <span className="font-mono text-caption tabular-nums text-faint">05</span>
               <Eyebrow tone="blue">
                 <Marker tone="blue" />
-                Diagnostic — free
+                Diagnostic · free
               </Eyebrow>
             </div>
             <h2 className="mt-5 font-display text-h2 tracking-[-0.025em]">
@@ -108,7 +108,7 @@ export function Generator() {
             </h2>
             <p className="mt-5 max-w-[38ch] text-[15px] leading-relaxed text-muted-foreground">
               Tell the instrument your business and city. It drafts the exact six-agent
-              team that would get you recommended — named for your trade, right now.
+              team that would get you recommended, named for your trade, right now.
             </p>
             <p className="mt-6 max-w-[34ch] border-l-2 border-border-strong pl-4 font-mono text-[11px] leading-relaxed text-faint">
               Instrument v1 · client-side estimate. A live audit runs your real queries
@@ -297,7 +297,7 @@ export function Generator() {
                           </a>
                         </Button>
                         <span className="text-[13px] text-muted-foreground">
-                          Opens a pre-filled email — edit anything before you send.
+                          Opens a pre-filled email. Edit anything before you send.
                         </span>
                       </div>
                     </motion.div>

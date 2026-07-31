@@ -92,7 +92,7 @@ export function Hero() {
     <header
       ref={heroRef}
       id="top"
-      className="relative overflow-hidden pt-24 pb-8 sm:pt-28 lg:pb-10"
+      className="relative overflow-hidden pt-24 pb-7 sm:pt-28 lg:pb-8"
     >
       <Container>
         {/* masthead rule — thin directional element */}
@@ -132,7 +132,7 @@ export function Hero() {
               transition={{ duration: 0.55, ease: EASE_REVEAL, delay: 0.42 }}
               className="mt-8 max-w-[46ch] text-lead text-muted-foreground"
             >
-              Your buyers stopped Googling. They ask ChatGPT, Perplexity and Gemini — and
+              Your buyers stopped Googling. They ask ChatGPT, Perplexity and Gemini, and
               the machine names a handful of businesses.{" "}
               <span className="font-medium text-foreground">
                 Cited makes sure you're one of them.
@@ -183,7 +183,7 @@ export function Hero() {
             />
             <HeroStat
               figure="4"
-              label={<>engines watched — GPT,<br />Perplexity, Gemini, Claude</>}
+              label={<>engines watched: GPT,<br />Perplexity, Gemini, Claude</>}
             />
           </dl>
           <a
