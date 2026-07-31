@@ -5,7 +5,6 @@ import { Solution } from "@/components/Solution"
 import { HowItWorks } from "@/components/HowItWorks"
 import { Proof } from "@/components/Proof"
 import { Generator } from "@/components/Generator"
-import { About } from "@/components/About"
 import { CloseCta } from "@/components/CloseCta"
 import { SiteFooter } from "@/components/SiteFooter"
 import { LegalPage } from "@/components/LegalPage"
@@ -71,20 +70,26 @@ export default function App() {
     <>
       <Nav />
       <main>
-        <Hero />
-        <NearViewport id="problem" minHeight={520}>
-          <Suspense fallback={<div className="h-[520px]" aria-hidden />}>
-            <VisibilityGap />
-          </Suspense>
-        </NearViewport>
-        <Solution />
-        <HowItWorks />
-        <Proof />
-        <Generator />
-        <About />
-        <CloseCta />
+        {/* Hero pins; the rest of the page slides up OVER it on first scroll. */}
+        <div className="sticky top-0 z-0">
+          <Hero />
+        </div>
+        <div className="relative z-10 bg-background">
+          <NearViewport id="problem" minHeight={520}>
+            <Suspense fallback={<div className="h-[520px]" aria-hidden />}>
+              <VisibilityGap />
+            </Suspense>
+          </NearViewport>
+          <Solution />
+          <HowItWorks />
+          <Proof />
+          <Generator />
+          <CloseCta />
+        </div>
       </main>
-      <SiteFooter />
+      <div className="relative z-10 bg-background">
+        <SiteFooter />
+      </div>
     </>
   )
 }

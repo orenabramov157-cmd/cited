@@ -162,7 +162,7 @@ export function HowItWorks() {
                 key={s.k}
                 id={`how-step-${i}`}
                 className={cn(
-                  "scroll-mt-28 border-t border-border py-7 first:border-t-0 first:pt-0 lg:flex lg:min-h-[38vh] lg:flex-col lg:justify-center lg:py-8"
+                  "scroll-mt-28 border-t border-border py-7 first:border-t-0 first:pt-0 lg:flex lg:min-h-[32vh] lg:flex-col lg:justify-center lg:py-8"
                 )}
               >
                 <motion.div
@@ -177,10 +177,10 @@ export function HowItWorks() {
                       {s.k}
                     </span>
                   </div>
-                  <h3 className="mt-4 max-w-[24ch] font-display text-[1.6rem] font-[620] leading-[1.15] tracking-[-0.02em] sm:text-[1.85rem]">
+                  <h3 className="mt-3 max-w-[24ch] font-display text-[1.6rem] font-[620] leading-[1.15] tracking-[-0.02em] sm:text-[1.85rem]">
                     {s.title}
                   </h3>
-                  <p className="mt-4 max-w-[52ch] text-[15px] leading-relaxed text-muted-foreground">
+                  <p className="mt-2.5 max-w-[52ch] text-[15px] leading-relaxed text-muted-foreground">
                     {s.d}
                   </p>
                   {[<BaselinePanel key="b" />, <DiagnosePanel key="d" />, <FixPanel key="f" />, <RemeasurePanel key="r" />][i]}
@@ -220,7 +220,7 @@ function PanelShell({
         mx.set(-300)
         my.set(-300)
       }}
-      className="group relative mt-8 max-w-[520px] overflow-hidden rounded-[var(--r-lg)] border border-border bg-panel shadow-[var(--shadow-panel)] transition-colors duration-300 hover:border-blue/45"
+      className="group relative mt-5 max-w-[520px] overflow-hidden rounded-[var(--r-lg)] border border-border bg-panel shadow-[var(--shadow-panel)] transition-colors duration-300 hover:border-blue/45"
     >
       <motion.div
         aria-hidden
@@ -231,7 +231,7 @@ function PanelShell({
         <span className="font-medium text-foreground/85">{title}</span>
         <span className="text-faint">{meta}</span>
       </div>
-      <div className="px-5 py-4">{children}</div>
+      <div className="px-5 py-3.5">{children}</div>
     </div>
   )
 }

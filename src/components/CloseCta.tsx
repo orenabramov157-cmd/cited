@@ -47,6 +47,44 @@ export function CloseCta() {
             </Button>
           </div>
         </div>
+
+        {/* about strip: mission + what we stand on, compact */}
+        <motion.div
+          id="about"
+          initial={reduce ? false : { opacity: 0, y: 24, scale: 0.97 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          viewport={{ once: false, amount: 0.35 }}
+          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+          className="mt-12 border-t border-border pt-7"
+        >
+          <div className="flex items-baseline justify-between gap-6">
+            <Eyebrow tone="blue">
+              <Marker tone="blue" />
+              About Cited
+            </Eyebrow>
+            <p className="hidden max-w-[44ch] text-right text-[13px] leading-relaxed text-muted-foreground md:block">
+              The best shop in town should be the one the machine names. We close
+              that gap, measurably, one market at a time.
+            </p>
+          </div>
+          <div className="mt-5 grid gap-6 sm:grid-cols-3">
+            {[
+              ["green", "Evidence first", "Dated screenshots, repeat runs. If we can't measure it, we don't say it."],
+              ["blue", "Skin in the game", "Born inside our own 35-year family jewelry store. Client zero is us."],
+              ["yellow", "One per market", "The AI names three. We never work both sides of the same answer."],
+            ].map(([tone, k, d]) => (
+              <div key={k} className="grid grid-cols-[auto_1fr] gap-x-3">
+                <span className="mt-[6px]">
+                  <Marker tone={tone as "green" | "blue" | "yellow"} />
+                </span>
+                <div>
+                  <div className="font-display text-[15px] font-[640]">{k}</div>
+                  <p className="mt-0.5 text-[13px] leading-relaxed text-muted-foreground">{d}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
       </Container>
     </section>
   )

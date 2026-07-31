@@ -85,7 +85,7 @@ function FigShell({
   return (
     <div
       className={cn(
-        "w-full max-w-[300px] overflow-hidden rounded-[var(--r-lg)] border border-border bg-panel",
+        "w-full max-w-[290px] overflow-hidden rounded-[var(--r-lg)] border border-border bg-panel",
         className
       )}
     >
@@ -341,36 +341,32 @@ export function Solution() {
           </div>
         </article>
 
-        {/* staggered index — alternating indent + varied rules, instrument per agent */}
-        <ol className="mt-2">
+        {/* compact grid: two agents per row, instrument beside the words */}
+        <ol className="mt-2 grid gap-x-8 sm:grid-cols-2 lg:grid-cols-3">
           {rest.map((a, i) => {
-            const indented = i % 2 === 1
             const Fig = FIGS[i + 1]
             return (
               <li
                 key={a.n}
-                className={cn(
-                  "group grid grid-cols-[auto_1fr] items-start gap-x-6 gap-y-6 py-5 sm:gap-x-10 lg:grid-cols-[auto_1fr_auto]",
-                  indented
-                    ? "border-t border-hair lg:ml-[10%]"
-                    : "border-t border-border lg:mr-[7%]"
-                )}
+                className="group flex flex-col gap-3 border-t border-border py-5"
               >
-                <span className="font-display text-[clamp(1.7rem,4vw,2.7rem)] font-[680] leading-none tracking-[-0.02em] text-faint tnum transition-colors duration-200 group-hover:text-blue">
-                  {String(i + 2).padStart(2, "0")}
-                </span>
-                <div className="max-w-[48ch]">
-                  <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-                    {a.tag}
+                <div className="flex items-baseline gap-3">
+                  <span className="font-display text-[1.7rem] font-[680] leading-none tracking-[-0.02em] text-faint tnum transition-colors duration-200 group-hover:text-blue">
+                    {String(i + 2).padStart(2, "0")}
+                  </span>
+                  <div>
+                    <div className="font-mono text-[9.5px] uppercase tracking-[0.12em] text-muted-foreground">
+                      {a.tag}
+                    </div>
+                    <h3 className="font-display text-[1.25rem] font-[640] tracking-[-0.01em] transition-colors duration-200 group-hover:text-blue">
+                      The {a.n}
+                    </h3>
                   </div>
-                  <h3 className="mt-1 font-display text-h3 font-[640] tracking-[-0.01em] transition-colors duration-200 group-hover:text-blue">
-                    The {a.n}
-                  </h3>
-                  <p className="mt-1.5 text-[14.5px] leading-relaxed text-muted-foreground">
-                    {a.d}
-                  </p>
                 </div>
-                <div className="col-start-2 lg:col-start-3 lg:self-center">
+                <p className="max-w-[52ch] text-[13.5px] leading-relaxed text-muted-foreground">
+                  {a.d}
+                </p>
+                <div className="mt-auto">
                   <Drift progress={drift} index={i + 1}>
                     <Fig reduce={reduce} />
                   </Drift>
