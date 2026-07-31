@@ -23,7 +23,7 @@ export function CloseCta() {
               being in the answer and not existing. Let's get you cited. It often starts
               as simply as getting you onto the few lists the machines already trust.
             </p>
-            <p className="mt-7 max-w-[52ch] border-l-2 border-yellow pl-4 text-[14px] leading-relaxed text-muted-foreground">
+            <p className="mt-7 max-w-[52ch] border-l-2 border-yellow pl-4 text-[15px] leading-relaxed text-muted-foreground">
               <span className="font-medium text-foreground">
                 One business per category, per market.
               </span>{" "}
@@ -48,7 +48,7 @@ export function CloseCta() {
               <Marker tone="blue" />
               About Cited
             </Eyebrow>
-            <p className="hidden max-w-[44ch] text-right text-[13px] leading-relaxed text-muted-foreground md:block">
+            <p className="hidden max-w-[44ch] text-right text-[14px] leading-relaxed text-muted-foreground md:block">
               The best shop in town should be the one the machine names. We close
               that gap, measurably, one market at a time.
             </p>
@@ -64,8 +64,8 @@ export function CloseCta() {
                   <Marker tone={tone as "green" | "blue" | "yellow"} />
                 </span>
                 <div>
-                  <div className="font-display text-[15px] font-[640]">{k}</div>
-                  <p className="mt-0.5 text-[13px] leading-relaxed text-muted-foreground">{d}</p>
+                  <div className="font-display text-[16px] font-[640]">{k}</div>
+                  <p className="mt-0.5 text-[14px] leading-relaxed text-muted-foreground">{d}</p>
                 </div>
               </div>
             ))}

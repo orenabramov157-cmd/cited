@@ -313,7 +313,7 @@ export function Solution() {
               </>
             }
           />
-          <p className="max-w-[38ch] text-[15px] leading-relaxed text-muted-foreground lg:pb-1.5 lg:text-right">
+          <p className="max-w-[38ch] text-[16px] leading-relaxed text-muted-foreground lg:pb-1.5 lg:text-right">
             Each owns a lever AI weighs when it decides who to name. You don't manage
             them. We run the playbook and prove the movement on your own queries.
           </p>
@@ -362,7 +362,7 @@ export function Solution() {
                     </h3>
                   </div>
                 </div>
-                <p className="max-w-[52ch] text-[13.5px] leading-relaxed text-muted-foreground">
+                <p className="max-w-[52ch] text-[14.5px] leading-relaxed text-muted-foreground">
                   {a.d}
                 </p>
                 <div className="mt-auto">

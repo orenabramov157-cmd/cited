@@ -107,7 +107,7 @@ export function Generator() {
               Sketch your team in{" "}
               <span className="hl-yellow">30 seconds.</span>
             </h2>
-            <p className="mt-5 max-w-[38ch] text-[15px] leading-relaxed text-muted-foreground">
+            <p className="mt-5 max-w-[38ch] text-[16px] leading-relaxed text-muted-foreground">
               Tell the instrument your business and city. It drafts the exact six-agent
               team that would get you recommended, named for your trade, right now.
             </p>
@@ -196,7 +196,7 @@ export function Generator() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={reduce ? undefined : { opacity: 0, y: -4 }}
                       transition={{ duration: DUR.micro, ease: EASE_REVEAL }}
-                      className="mt-6 inline-flex items-center gap-2 rounded-[var(--r-sm)] bg-coral/10 px-3.5 py-2.5 text-[13.5px] font-medium text-coral"
+                      className="mt-6 inline-flex items-center gap-2 rounded-[var(--r-sm)] bg-coral/10 px-3.5 py-2.5 text-[14.5px] font-medium text-coral"
                     >
                       <AlertCircle size={15} />
                       Enter both a business and a city to run the audit.
@@ -283,7 +283,7 @@ export function Generator() {
                               <div className="font-display text-[1.05rem] font-[640] text-foreground">
                                 {t.name}
                               </div>
-                              <div className="mt-1 break-words text-[13.5px] leading-relaxed text-muted-foreground">
+                              <div className="mt-1 break-words text-[14.5px] leading-relaxed text-muted-foreground">
                                 <TypeLine text={t.move} delay={0.25 + i * 0.24} />
                               </div>
                             </div>
@@ -297,7 +297,7 @@ export function Generator() {
                             Email me this team <ArrowRight />
                           </a>
                         </Button>
-                        <span className="text-[13px] text-muted-foreground">
+                        <span className="text-[14px] text-muted-foreground">
                           Opens a pre-filled email. Edit anything before you send.
                         </span>
                       </div>
@@ -386,7 +386,7 @@ function NavyField({
         aria-invalid={invalid || undefined}
         onChange={(e) => onChange(e.target.value)}
         className={
-          "flex h-12 w-full rounded-[var(--r-sm)] border bg-background px-4 text-[15px] text-foreground " +
+          "flex h-12 w-full rounded-[var(--r-sm)] border bg-background px-4 text-[16px] text-foreground " +
           "placeholder:text-faint caret-blue " +
           "transition-[border-color,box-shadow,background] duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] " +
           "hover:border-border-strong focus-visible:border-blue focus-visible:ring-2 focus-visible:ring-blue/30 " +

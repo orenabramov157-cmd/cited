@@ -119,7 +119,7 @@ export function VisibilityGap() {
           />
           {/* marginal annotation — counterweight, top right */}
           <div className="mt-8 lg:col-span-4 lg:col-start-9 lg:mt-2">
-            <p className="border-l-2 border-coral pl-4 text-[14.5px] leading-relaxed text-muted-foreground">
+            <p className="border-l-2 border-coral pl-4 text-[15.5px] leading-relaxed text-muted-foreground">
               Right now, for the queries that matter,{" "}
               <span className="font-medium text-coral">the AI is naming your competitors.</span>
             </p>
@@ -132,7 +132,7 @@ export function VisibilityGap() {
             <div className="font-display text-stat font-[680] tracking-[-0.03em] text-ink tnum dark:text-foreground">
               <CountNumber value={45} suffix="%" />
             </div>
-            <p className="mt-3 max-w-[24ch] text-[14.5px] leading-relaxed text-muted-foreground">
+            <p className="mt-3 max-w-[24ch] text-[15.5px] leading-relaxed text-muted-foreground">
               of buyers now ask AI to find a local business.{" "}
               <span className="font-medium text-foreground">And it climbs every quarter.</span>
             </p>
@@ -300,7 +300,7 @@ function AnswerBox() {
               {...riseIn(reduce, 0.12 + i * 0.12)}
               className="flex items-center justify-between gap-4"
             >
-              <span className="flex items-baseline gap-3 text-[13.5px]">
+              <span className="flex items-baseline gap-3 text-[14.5px]">
                 <span className="font-mono text-[10px] tabular-nums text-faint">
                   {String(i + 1).padStart(2, "0")}
                 </span>
@@ -316,7 +316,7 @@ function AnswerBox() {
             {...riseIn(reduce, 0.55)}
             className="flex items-center justify-between gap-4 border-t border-border pt-3"
           >
-            <span className="flex items-center gap-3 text-[13.5px]">
+            <span className="flex items-center gap-3 text-[14.5px]">
               <span className="font-mono text-[10px] tabular-nums text-faint">04</span>
               <span className="font-medium text-coral">Your business</span>
             </span>
@@ -396,7 +396,7 @@ function FlowCompare() {
           <div className="font-display text-[2.1rem] font-[680] leading-none tracking-[-0.02em] tnum">
             <CountNumber value={1.2} decimals={1} prefix="~" suffix="%" />
           </div>
-          <p className="max-w-[30ch] text-[13.5px] leading-snug text-muted-foreground">
+          <p className="max-w-[30ch] text-[14.5px] leading-snug text-muted-foreground">
             of local businesses surface in AI answers today.{" "}
             <span className="font-medium text-foreground">The field is wide open.</span>
           </p>

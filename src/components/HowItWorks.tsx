@@ -150,7 +150,7 @@ export function HowItWorks() {
                   onClick={() => scrollToStep(i)}
                 />
               ))}
-              <p className="mt-4 max-w-[24ch] text-[13px] leading-relaxed text-faint">
+              <p className="mt-4 max-w-[24ch] text-[14px] leading-relaxed text-faint">
                 One loop. Four to six weeks. Evidence at both ends.
               </p>
             </nav>
@@ -176,7 +176,7 @@ export function HowItWorks() {
                   <h3 className="mt-3 max-w-[24ch] font-display text-[1.6rem] font-[620] leading-[1.15] tracking-[-0.02em] sm:text-[1.85rem]">
                     {s.title}
                   </h3>
-                  <p className="mt-2.5 max-w-[52ch] text-[15px] leading-relaxed text-muted-foreground">
+                  <p className="mt-2.5 max-w-[52ch] text-[16px] leading-relaxed text-muted-foreground">
                     {s.d}
                   </p>
                   {[<BaselinePanel key="b" />, <DiagnosePanel key="d" />, <FixPanel key="f" />, <RemeasurePanel key="r" />][i]}
@@ -244,7 +244,7 @@ function BaselinePanel() {
       <div className="flex flex-col gap-3">
         {QUERIES.map((q) => (
           <div key={q} className="flex items-center justify-between gap-4">
-            <span className="truncate text-[13px] text-muted-foreground">“{q}”</span>
+            <span className="truncate text-[14px] text-muted-foreground">“{q}”</span>
             <span className="flex shrink-0 items-center gap-1.5" aria-hidden>
               {[0, 1, 2, 3].map((e) => (
                 <span key={e} className="size-[9px] rounded-[1px] bg-coral/75" />
@@ -301,7 +301,7 @@ function FixPanel() {
       <ul className="flex flex-col gap-3">
         {rows.map(([label, status, dot, tone]) => (
           <li key={label} className="flex items-center justify-between gap-4">
-            <span className="flex items-center gap-2.5 text-[13px] text-muted-foreground">
+            <span className="flex items-center gap-2.5 text-[14px] text-muted-foreground">
               <span className={cn("size-[7px] rounded-[1px]", dot)} aria-hidden />
               {label}
             </span>
@@ -321,7 +321,7 @@ function RemeasurePanel() {
       <div className="flex flex-col gap-3">
         {QUERIES.map((q) => (
           <div key={q} className="flex items-center justify-between gap-4">
-            <span className="truncate text-[13px] text-muted-foreground">“{q}”</span>
+            <span className="truncate text-[14px] text-muted-foreground">“{q}”</span>
             <span className="flex shrink-0 items-center gap-2 font-mono text-[10px] uppercase tracking-[0.06em]">
               <span className="text-faint line-through decoration-coral/60">absent</span>
               <ArrowRight size={11} className="text-faint" aria-hidden />

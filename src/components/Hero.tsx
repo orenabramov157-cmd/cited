@@ -251,7 +251,7 @@ function SpecPanel() {
             "Review thresholds",
             "Answer-page content",
           ].map((t) => (
-            <li key={t} className="flex items-center gap-2.5 text-[13px] text-muted-foreground">
+            <li key={t} className="flex items-center gap-2.5 text-[14px] text-muted-foreground">
               <span className="size-[6px] rounded-[1px] bg-blue" aria-hidden />
               {t}
             </li>

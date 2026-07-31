@@ -67,7 +67,7 @@ export function Proof() {
                     key={r.q}
                     className="grid grid-cols-[1.6fr_1fr_0.6fr_0.6fr] items-center gap-3 border-b border-hair px-5 py-3.5 last:border-b-0"
                   >
-                    <span className="text-[14px] font-medium text-foreground">“{r.q}”</span>
+                    <span className="text-[15px] font-medium text-foreground">“{r.q}”</span>
                     <span className="font-mono text-[10.5px] text-muted-foreground">
                       {r.engines}
                     </span>
@@ -109,7 +109,7 @@ export function Proof() {
                     <span className="font-mono text-[11px] font-medium text-blue tabular-nums">
                       {n}
                     </span>
-                    <span className="text-[14px] leading-relaxed text-muted-foreground">
+                    <span className="text-[15px] leading-relaxed text-muted-foreground">
                       {t}
                     </span>
                   </li>
@@ -118,7 +118,7 @@ export function Proof() {
 
               <div className="mt-7 flex gap-3 rounded-[var(--r-md)] bg-tint px-4 py-3.5">
                 <Lock size={15} className="mt-0.5 shrink-0 text-blue" />
-                <p className="text-[13px] leading-relaxed text-muted-foreground">
+                <p className="text-[14px] leading-relaxed text-muted-foreground">
                   <span className="font-medium text-foreground">
                     You get the lift and the evidence. The recipe stays in-house.
                   </span>{" "}
