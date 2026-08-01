@@ -26,7 +26,15 @@ import { useScrollAdvance } from "@/components/fx/ScrollAdvance"
  * pixels against the pull. That resistance is what makes the handoff feel
  * earned rather than accidental.
  */
-export function PageTransition({ children }: { children: ReactNode }) {
+export function PageTransition({
+  children,
+}: {
+  /**
+   * Called with the location this page instance is pinned to. The exiting
+   * instance keeps its own, so it renders the page that is actually leaving.
+   */
+  children: (location: ReturnType<typeof useLocation>) => ReactNode
+}) {
   const location = useLocation()
   const reduce = useReducedMotion()
   const advance = useScrollAdvance()
@@ -38,21 +46,21 @@ export function PageTransition({ children }: { children: ReactNode }) {
     prevPath.current = location.pathname
   }, [location.pathname])
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "auto" })
-  }, [location.pathname])
+  // Reset scroll only once the outgoing page is gone. Doing it at the start of
+  // the exit made the leaving page jump to the top before it left.
+  const onEnter = () => window.scrollTo({ top: 0, behavior: "auto" })
 
   const fallback = useMotionValue(0)
   const pull = useSpring(advance?.pull ?? fallback, { stiffness: 380, damping: 32 })
   const lean = useTransform(pull, (v) => -v * 34)
   const leanScale = useTransform(pull, (v) => 1 - Math.min(Math.abs(v), 1) * 0.012)
 
-  if (reduce) return <>{children}</>
+  if (reduce) return <>{children(location)}</>
 
   return (
     // `custom` is how the direction reaches the *exiting* page: its props are
     // frozen at unmount, so a plain variable would give it a stale direction.
-    <AnimatePresence mode="wait" initial={false} custom={dir}>
+    <AnimatePresence mode="wait" initial={false} custom={dir} onExitComplete={onEnter}>
       <motion.div key={location.pathname} className="relative">
         <motion.div
           custom={dir}
@@ -63,7 +71,7 @@ export function PageTransition({ children }: { children: ReactNode }) {
           transition={{ duration: 0.58, ease: EASE_REVEAL }}
         >
           {/* the lean lives on an inner layer so it never fights the slide */}
-          <motion.div style={{ x: lean, scale: leanScale }}>{children}</motion.div>
+          <motion.div style={{ x: lean, scale: leanScale }}>{children(location)}</motion.div>
         </motion.div>
 
         {/*

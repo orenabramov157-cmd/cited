@@ -21,22 +21,29 @@ function Shell() {
     <ScrollAdvance>
       <Nav />
       <main>
+        {/*
+          `location` is passed explicitly rather than read from context. Without
+          it the exiting subtree re-renders with the *new* location, so the
+          incoming page slides out and then slides back in.
+        */}
         <PageTransition>
-          <Suspense fallback={<div className="min-h-[70vh]" aria-hidden />}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/shift" element={<Shift />} />
-              <Route path="/team" element={<Team />} />
-              <Route path="/method" element={<Method />} />
-              <Route path="/proof" element={<ProofPage />} />
-              <Route path="/pricing" element={<Pricing />} />
-              <Route path="/demo" element={<Demo />} />
-              <Route path="/try" element={<Try />} />
-              <Route path="/terms" element={<LegalPage doc="terms" />} />
-              <Route path="/privacy" element={<LegalPage doc="privacy" />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </Suspense>
+          {(location) => (
+            <Suspense fallback={<div className="min-h-[70vh]" aria-hidden />}>
+              <Routes location={location}>
+                <Route path="/" element={<Home />} />
+                <Route path="/shift" element={<Shift />} />
+                <Route path="/team" element={<Team />} />
+                <Route path="/method" element={<Method />} />
+                <Route path="/proof" element={<ProofPage />} />
+                <Route path="/pricing" element={<Pricing />} />
+                <Route path="/demo" element={<Demo />} />
+                <Route path="/try" element={<Try />} />
+                <Route path="/terms" element={<LegalPage doc="terms" />} />
+                <Route path="/privacy" element={<LegalPage doc="privacy" />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Suspense>
+          )}
         </PageTransition>
       </main>
       <SiteFooter />

@@ -86,7 +86,7 @@ const browser = await chromium.launch()
   ok("nav: 'The Shift' navigates on first click", path === "/shift", path)
 
   // the pager at the end of each page moves you forward without a scroll hunt
-  await page.click('a[href="/team"]')
+  await page.click('main a[href="/team"]')
   await page.waitForTimeout(900)
   const path2 = await page.evaluate(() => window.location.pathname)
   const scroll = await page.evaluate(() => window.scrollY)
@@ -227,6 +227,58 @@ const browser = await chromium.launch()
   await page.waitForTimeout(600)
   const stayed = await page.evaluate(() => window.location.pathname)
   ok("reduced motion: scroll advance disabled", stayed === "/shift", stayed)
+  await page.close()
+}
+
+// ---------- the page that leaves must be the page you were on ----------
+{
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
+  await page.goto(BASE + "/shift", { waitUntil: "networkidle" })
+  await page.waitForTimeout(800)
+  const before = await page.$eval("h1", (el) => el.textContent.trim())
+
+  // mid-transition, the outgoing copy must still be on screen. Routes read
+  // their location from context, so without an explicit location the exiting
+  // subtree re-rendered as the incoming page and slid the new page out.
+  await page.click('nav a[href="/team"]')
+  await page.waitForTimeout(160)
+  const during = await page.evaluate(() =>
+    [...document.querySelectorAll("h1")].map((el) => el.textContent.trim())
+  )
+  ok(
+    "transition: the outgoing page is the one that leaves",
+    during.some((t) => t === before),
+    during.join(" | ").slice(0, 60)
+  )
+  await page.waitForTimeout(1000)
+  const after = await page.$eval("h1", (el) => el.textContent.trim())
+  ok("transition: settles on the incoming page", after !== before, after.slice(0, 40))
+  await page.close()
+}
+
+// ---------- legal pages live inside the shell, not beside it ----------
+{
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
+  await page.goto(BASE + "/terms", { waitUntil: "networkidle" })
+  await page.waitForTimeout(600)
+  const counts = await page.evaluate(() => ({
+    mains: document.querySelectorAll("main").length,
+    nestedMains: document.querySelectorAll("main main").length,
+    headers: document.querySelectorAll("header").length,
+    footers: document.querySelectorAll("footer").length,
+    h1s: document.querySelectorAll("h1").length,
+  }))
+  ok("legal: exactly one main landmark", counts.mains === 1, JSON.stringify(counts))
+  ok("legal: no nested main", counts.nestedMains === 0)
+  ok("legal: one header and one footer", counts.headers === 1 && counts.footers === 1)
+
+  // and the back link must not reload the document
+  const nav = []
+  page.on("framenavigated", () => nav.push(1))
+  await page.click('main a[href="/"]')
+  await page.waitForTimeout(900)
+  const path = await page.evaluate(() => window.location.pathname)
+  ok("legal: back link stays inside the app", path === "/", path)
   await page.close()
 }
 

@@ -77,9 +77,9 @@ export function Proof() {
           {/* counterweight rail: the client-side brisk summary */}
           <aside className="mt-12 lg:col-span-4 lg:mt-24">
             <Rise amount={64} className="border-t-2 border-ink pt-6 dark:border-border-strong">
-              <h3 className="font-display text-h3 font-[640] tracking-[-0.01em]">
+              <h2 className="font-display text-h3 font-[640] tracking-[-0.01em]">
                 What you see as a client
-              </h3>
+              </h2>
               <ol className="mt-5 flex flex-col gap-4">
                 {[
                   ["01", "Baseline scorecard: where you stand, engine by engine."],

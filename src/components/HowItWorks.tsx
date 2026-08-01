@@ -155,9 +155,9 @@ export function HowItWorks() {
                       {s.k}
                     </span>
                   </div>
-                  <h3 className="mt-3 max-w-[24ch] font-display text-[1.6rem] font-[620] leading-[1.15] tracking-[-0.02em] sm:text-[1.85rem]">
+                  <h2 className="mt-3 max-w-[24ch] font-display text-[1.6rem] font-[620] leading-[1.15] tracking-[-0.02em] sm:text-[1.85rem]">
                     {s.title}
-                  </h3>
+                  </h2>
                   <p className="mt-2.5 max-w-[52ch] text-[16px] leading-relaxed text-muted-foreground">
                     {s.d}
                   </p>

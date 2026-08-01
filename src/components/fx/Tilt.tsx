@@ -23,7 +23,7 @@ export function Tilt({
 }) {
   const reduce = useReducedMotion()
   const hasPointer = useHasPointer()
-  const { ref, nx, ny, active } = useElementPointer<HTMLDivElement>()
+  const { attach, nx, ny, active } = useElementPointer<HTMLDivElement>()
 
   const rotateY = useTransform(nx, [-1, 1], [-max, max])
   const rotateX = useTransform(ny, [-1, 1], [max, -max])
@@ -32,9 +32,11 @@ export function Tilt({
   if (reduce || !hasPointer) return <div className={className}>{children}</div>
 
   return (
-    <div style={{ perspective: 1100 }} className="[transform-style:preserve-3d]">
+    // h-full: without it a stretched grid row collapses on pointer devices,
+    // because the perspective wrapper sat between the row and the card.
+    <div style={{ perspective: 1100 }} className="h-full [transform-style:preserve-3d]">
       <motion.div
-        ref={ref}
+        ref={attach}
         style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
         animate={{ y: active ? -lift : 0 }}
         transition={{ type: "spring", stiffness: 220, damping: 24 }}

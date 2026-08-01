@@ -186,7 +186,7 @@ export default function Home() {
       <Container>
         <div className="flex items-center gap-3 pt-2 font-mono text-[10px] uppercase tracking-[0.12em] text-faint">
           <Marker tone="yellow" />
-          Four pages. No scrolling marathon.
+          Short pages. Scroll to travel, not to hunt.
         </div>
       </Container>
 
@@ -197,13 +197,15 @@ export default function Home() {
 
 function HeroStat({ figure, label }: { figure: ReactNode; label: ReactNode }) {
   return (
-    <div>
-      <dd className="font-display text-[1.9rem] font-[640] leading-none tracking-[-0.01em] text-foreground tnum">
-        {figure}
-      </dd>
+    // <dt> must precede <dd> for the pair to be associated; the visual order
+    // (figure above label) is restored with flex-col-reverse.
+    <div className="flex flex-col-reverse">
       <dt className="mt-2 font-mono text-[10px] uppercase leading-[1.55] tracking-[0.06em] text-muted-foreground">
         {label}
       </dt>
+      <dd className="font-display text-[1.9rem] font-[640] leading-none tracking-[-0.01em] text-foreground tnum">
+        {figure}
+      </dd>
     </div>
   )
 }

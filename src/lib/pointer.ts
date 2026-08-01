@@ -35,11 +35,16 @@ export function useElementPointer<T extends HTMLElement>(
   damping = 20
 ): {
   ref: React.RefObject<T | null>
+  attach: (el: T | null) => void
   nx: MotionValue<number>
   ny: MotionValue<number>
   active: boolean
 } {
   const ref = useRef<T | null>(null)
+  // Callers can render without the ref on the first pass (Tilt does, until it
+  // knows there is a real pointer). A plain ref would leave the effect having
+  // seen null forever, so track the node in state and re-run when it arrives.
+  const [node, setNode] = useState<T | null>(null)
   const rawX = useMotionValue(0)
   const rawY = useMotionValue(0)
   const nx = useSpring(rawX, { stiffness, damping })
@@ -47,7 +52,7 @@ export function useElementPointer<T extends HTMLElement>(
   const [active, setActive] = useState(false)
 
   useEffect(() => {
-    const el = ref.current
+    const el = ref.current ?? node
     if (!el) return
 
     const onMove = (e: PointerEvent) => {
@@ -70,9 +75,15 @@ export function useElementPointer<T extends HTMLElement>(
       el.removeEventListener("pointerenter", onEnter)
       el.removeEventListener("pointerleave", onLeave)
     }
-  }, [rawX, rawY])
+  }, [rawX, rawY, node])
 
-  return { ref, nx, ny, active }
+  /** Assign this instead of `ref` when the element mounts conditionally. */
+  const attach = (el: T | null) => {
+    ref.current = el
+    setNode(el)
+  }
+
+  return { ref, attach, nx, ny, active }
 }
 
 /** True on devices with a real hover-capable pointer (skip fx on touch). */
