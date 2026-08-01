@@ -9,7 +9,7 @@ import { Magnetic } from "@/components/fx/Magnetic"
 import { CONTACT_EMAIL, MAX_BUSINESS, MAX_CITY } from "@/lib/generator"
 import { EASE_REVEAL, staggerContainer, agentItem } from "@/lib/motion"
 
-/** What the free report actually contains — the diagnosis, not the treatment. */
+/** What the free report actually contains: the diagnosis, not the treatment. */
 const DELIVERS = [
   ["01", "The questions", "The exact prompts your buyers ask before they choose."],
   ["02", "The answers", "Who the machines name today, verbatim and dated."],
@@ -29,7 +29,7 @@ export default function Demo() {
   const filled = [biz, city, site, email].filter((v) => v.trim().length > 0).length
 
   const mailto = useMemo(() => {
-    const subject = encodeURIComponent(`AI visibility report — ${biz.trim() || "my business"}`)
+    const subject = encodeURIComponent(`AI visibility report: ${biz.trim() || "my business"}`)
     const body = encodeURIComponent(
       [
         `Business: ${biz.trim()}`,
