@@ -1,19 +1,14 @@
-import { useRef, type ReactNode } from "react"
-import {
-  motion,
-  useReducedMotion,
-  useScroll,
-  useSpring,
-  useTransform,
-  type MotionValue,
-} from "framer-motion"
+import { type ReactNode } from "react"
+import { motion } from "framer-motion"
 import { ArrowRight } from "lucide-react"
-import { Container, SectionHeading } from "@/components/primitives"
-import { Rise } from "@/components/Rise"
 import { cn } from "@/lib/utils"
 import { EASE_REVEAL } from "@/lib/motion"
 
-const AGENTS = [
+/**
+ * The six levers and their mini-instruments. Extracted so both the team page
+ * deck and any future surface can render the same figures.
+ */
+export const AGENTS = [
   {
     tag: "Citations",
     n: "Citation Hunter",
@@ -55,22 +50,6 @@ const popIn = (reduce: boolean | null, delay = 0) => ({
   viewport: { once: false, amount: 0.35 },
   transition: { duration: 0.55, ease: EASE_REVEAL, delay },
 })
-
-/** Gentle parallax — each figure drifts at its own speed while you scroll. */
-function Drift({
-  progress,
-  index,
-  children,
-}: {
-  progress: MotionValue<number>
-  index: number
-  children: ReactNode
-}) {
-  const reduce = useReducedMotion()
-  const range = index % 2 === 0 ? [26, -30] : [14, -20]
-  const y = useTransform(progress, [0, 1], range)
-  return <motion.div style={reduce ? undefined : { y }}>{children}</motion.div>
-}
 
 /* ---------- mini-diagram shell ---------- */
 
@@ -282,100 +261,5 @@ function ContentFig({ reduce }: { reduce: boolean | null }) {
   )
 }
 
-const FIGS = [CitationsFig, SchemaFig, ReviewsFig, PressFig, EntityFig, ContentFig]
+export const FIGS = [CitationsFig, SchemaFig, ReviewsFig, PressFig, EntityFig, ContentFig]
 
-/* ---------- section ---------- */
-
-export function Solution() {
-  const [lead, ...rest] = AGENTS
-  const reduce = useReducedMotion()
-  const sectionRef = useRef<HTMLElement | null>(null)
-
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  })
-  const drift = useSpring(scrollYProgress, { stiffness: 70, damping: 24 })
-
-  const LeadFig = FIGS[0]
-
-  return (
-    <section ref={sectionRef} id="solution" className="relative py-8 md:py-12">
-      <Container>
-        <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
-          <SectionHeading
-            eyebrow="The Team"
-            index="02"
-            title={
-              <>
-                Six agents. One job:{" "}
-                <span className="text-blue">get you recommended.</span>
-              </>
-            }
-          />
-          <p className="max-w-[38ch] text-[16px] leading-relaxed text-muted-foreground lg:pb-1.5 lg:text-right">
-            Each owns a lever AI weighs when deciding who to name.{" "}
-            We run them. You see the lift.
-          </p>
-        </div>
-
-        {/* featured lead agent — dominant entry */}
-        <article className="mt-8 grid gap-8 border-t-2 border-ink pt-7 sm:grid-cols-[auto_1fr] sm:gap-10 lg:grid-cols-[auto_1fr_auto] dark:border-border-strong">
-          <div className="font-display text-[clamp(3rem,8vw,5.6rem)] font-[680] leading-[0.82] tracking-[-0.03em] text-blue tnum">
-            01
-          </div>
-          <div className="max-w-[54ch]">
-            {/* fixed dark literal, not text-ink: --yellow doesn't change in
-                dark mode but --ink does, which dropped this to ~1.3:1 */}
-            <span className="inline-block rounded-[3px] bg-yellow px-2 py-0.5 font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-[#171717]">
-              Lever: {lead.tag}
-            </span>
-            <h3 className="mt-3 font-display text-h2 font-[640] tracking-[-0.02em]">
-              The {lead.n}
-            </h3>
-            <p className="mt-3.5 max-w-[48ch] text-lead text-muted-foreground">{lead.d}</p>
-          </div>
-          <div className="sm:col-start-2 lg:col-start-3 lg:self-center">
-            <Drift progress={drift} index={0}>
-              <LeadFig reduce={reduce} />
-            </Drift>
-          </div>
-        </article>
-
-        {/* compact grid: two agents per row, instrument beside the words */}
-        <ol className="mt-2 grid gap-x-8 sm:grid-cols-2 lg:grid-cols-3">
-          {rest.map((a, i) => {
-            const Fig = FIGS[i + 1]
-            return (
-              <li key={a.n} className="group border-t border-border py-5">
-                <Rise amount={30 + (i % 3) * 16} className="flex flex-col gap-3">
-                <div className="flex items-baseline gap-3">
-                  <span className="font-display text-[1.7rem] font-[680] leading-none tracking-[-0.02em] text-faint tnum transition-colors duration-200 group-hover:text-blue">
-                    {String(i + 2).padStart(2, "0")}
-                  </span>
-                  <div>
-                    <div className="font-mono text-[9.5px] uppercase tracking-[0.12em] text-muted-foreground">
-                      {a.tag}
-                    </div>
-                    <h3 className="font-display text-[1.25rem] font-[640] tracking-[-0.01em] transition-colors duration-200 group-hover:text-blue">
-                      The {a.n}
-                    </h3>
-                  </div>
-                </div>
-                <p className="max-w-[52ch] text-[14.5px] leading-relaxed text-muted-foreground">
-                  {a.d}
-                </p>
-                <div className="mt-auto">
-                  <Drift progress={drift} index={i + 1}>
-                    <Fig reduce={reduce} />
-                  </Drift>
-                </div>
-                </Rise>
-              </li>
-            )
-          })}
-        </ol>
-      </Container>
-    </section>
-  )
-}

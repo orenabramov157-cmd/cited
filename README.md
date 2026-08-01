@@ -11,7 +11,9 @@ team" with concrete first moves → prefilled email to us.
 ## Stack
 
 - React 19 + Vite 8 + TypeScript, Tailwind v4 (`@tailwindcss/vite`)
-- framer-motion (restrained motion system), Recharts (lazy-loaded chart)
+- react-router-dom: six short pages, not one long scroll
+- framer-motion + a canvas pointer field (motion system in `src/components/fx/`),
+  Recharts (lazy-loaded chart)
 - Hand-authored shadcn-style primitives (`src/components/ui/`)
 - Cloudflare Pages + Pages Function (`functions/api/team.ts`) calling the
   Anthropic API (`claude-opus-5`, structured JSON output)
@@ -33,7 +35,7 @@ Verification harness (Playwright; needs the dev server on :4599):
 
 ```bash
 npx playwright install chromium
-node verify.mjs        # 21 checks + screenshots into ./verify-out
+node verify.mjs        # 59 checks + screenshots into ./verify-out
 ```
 
 Live generator locally (optional — needs a key, see `KEY-SETUP.md`):
@@ -41,6 +43,12 @@ Live generator locally (optional — needs a key, see `KEY-SETUP.md`):
 ```bash
 npm run build && npx wrangler pages dev dist   # http://localhost:8788
 ```
+
+## Routes
+
+`/` `/shift` `/team` `/method` `/proof` `/try`, plus `/terms` and `/privacy`.
+Every page is under ~3200px tall; the harness enforces it. Inner pages are
+lazy-loaded chunks, so the first paint only pays for the hero.
 
 ## Behavior contract
 
@@ -54,10 +62,16 @@ npm run build && npx wrangler pages dev dist   # http://localhost:8788
 ## Structure
 
 ```
-src/components/        page sections (Hero, VisibilityGap, Solution,
-                       HowItWorks, Proof, Generator, CloseCta, Nav, footer)
+src/pages/             one file per route: Home, Shift, Team, Method,
+                       ProofPage, Try
+src/components/        sections used by the pages (VisibilityGap, HowItWorks,
+                       Proof, Generator, CloseCta, SpecPanel, agents, Nav,
+                       PageShell, footer)
+src/components/fx/     the motion layer: PointerField (cursor-reactive canvas
+                       grid), Tilt, Magnetic, SplitText, Cursor, PageTransition
 src/components/ui/     button / input / tooltip / tabs primitives
-src/lib/               generator logic (stub + fetchTeam), motion tokens, cn
+src/lib/               generator logic (stub + fetchTeam), motion tokens,
+                       pointer hooks, cn
 src/hooks/             useTheme, useCountUp
 functions/api/team.ts  the live generator endpoint (Cloudflare Pages Function)
 verify.mjs             Playwright verification harness

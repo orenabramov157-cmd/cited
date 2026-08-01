@@ -4,6 +4,13 @@ This repo is production-bound and carries hard constraints. If you are an AI
 tool (v0, Bolt, Lovable, Replit, a cheaper Claude chat, anyone): read this
 fully before editing. Violating these creates work instead of saving it.
 
+## Structure (since the multi-page redesign)
+
+Six routes via react-router: `/` `/shift` `/team` `/method` `/proof` `/try`.
+Page files live in `src/pages/`, the shared masthead/pager in
+`src/components/PageShell.tsx`, the motion primitives in
+`src/components/fx/`. Do not reintroduce one-page anchor scrolling.
+
 ## Non-negotiable constraints
 
 1. **Work on a branch, never main.** Name it `polish/<something>`.
@@ -23,11 +30,15 @@ fully before editing. Violating these creates work instead of saving it.
 7. **The method stays vague on-page.** Categories only (citations, schema,
    reviews, answer content). Never name specific sources, sequences,
    thresholds, or scripts. That is the product's IP.
-8. **Motion doctrine:** scroll-scrubbed counter-drift via the `Rise`
-   component (blocks glide up while the user scrolls, both directions),
-   varied speeds between neighbors, one-shot pops only on small internals,
-   never pin/stick content sections, everything instant under
-   prefers-reduced-motion.
+8. **Motion doctrine (updated 2026-07-31, owner approved "more animation"):**
+   the site is motion-forward but palette-quiet. Cursor-reactive first:
+   `PointerField` (canvas tick grid displaced by the pointer) on the hero,
+   `Tilt` for panels, `Magnetic` for primary buttons and the pager, `MaskLine`
+   for headline entrances, `PageTransition` between routes, `Cursor` ring on
+   desktop. Scroll-scrubbed counter-drift via `Rise` still carries in-page
+   reveals. Everything instant, and the canvas/cursor unmounted entirely,
+   under prefers-reduced-motion. Do NOT add motion by adding scroll length:
+   pages are capped at ~3200px and the harness fails if one grows past it.
 9. **Accessibility holds:** visible focus states, aria labels, contrast at
    WCAG AA in BOTH themes (light default + dim mode via the toggle).
 
@@ -36,7 +47,7 @@ fully before editing. Violating these creates work instead of saving it.
 The owner validates every external change back in Claude Code with:
 
     npm run build        # must stay clean
-    node verify.mjs      # Playwright harness, must stay 23/23 (dev server on :4599)
+    node verify.mjs      # Playwright harness, must stay 59/59 (dev server on :4599)
 
 Anything that breaks either gets reverted without discussion. Small,
 reviewable commits survive; repo-wide rewrites don't.

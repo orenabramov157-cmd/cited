@@ -1,21 +1,22 @@
 import { useEffect, useState } from "react"
 import { motion, useReducedMotion } from "framer-motion"
+import { Link, NavLink } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { Container } from "@/components/primitives"
+import { Magnetic } from "@/components/fx/Magnetic"
 import { EASE_REVEAL } from "@/lib/motion"
 
-const LINKS = [
-  { href: "#problem", label: "The Shift", n: "01" },
-  { href: "#solution", label: "The Team", n: "02" },
-  { href: "#how", label: "Method", n: "03" },
-  { href: "#proof", label: "Proof", n: "04" },
-  { href: "#build", label: "Try it", n: "05" },
+export const PAGES = [
+  { to: "/shift", label: "The Shift", n: "01" },
+  { to: "/team", label: "The Team", n: "02" },
+  { to: "/method", label: "Method", n: "03" },
+  { to: "/proof", label: "Proof", n: "04" },
+  { to: "/try", label: "Try it", n: "05" },
 ]
 
 export function Nav() {
   const [scrolled, setScrolled] = useState(false)
-  const [active, setActive] = useState<string | null>(null)
   const reduce = useReducedMotion()
 
   useEffect(() => {
@@ -23,25 +24,6 @@ export function Nav() {
     onScroll()
     window.addEventListener("scroll", onScroll, { passive: true })
     return () => window.removeEventListener("scroll", onScroll)
-  }, [])
-
-  // scrollspy: the tab whose section covers the viewport center is active
-  useEffect(() => {
-    const sections = LINKS
-      .map((l) => document.getElementById(l.href.slice(1)))
-      .filter((el): el is HTMLElement => el !== null)
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          const id = `#${entry.target.id}`
-          if (entry.isIntersecting) setActive(id)
-          else setActive((prev) => (prev === id ? null : prev))
-        }
-      },
-      { rootMargin: "-45% 0px -54% 0px" }
-    )
-    sections.forEach((el) => observer.observe(el))
-    return () => observer.disconnect()
   }, [])
 
   return (
@@ -60,7 +42,7 @@ export function Nav() {
         }
       >
         <Container className="flex h-16 items-center justify-between">
-          <a href="#top" className="flex items-baseline gap-2.5" aria-label="Cited — home">
+          <Link to="/" className="flex items-baseline gap-2.5" aria-label="Cited — home">
             <span className="inline-block size-[9px] rounded-[1px] bg-blue" aria-hidden />
             <span className="font-display text-[22px] font-[640] tracking-[-0.02em]">
               Cited
@@ -68,47 +50,49 @@ export function Nav() {
             <span className="hidden font-mono text-[10px] uppercase tracking-[0.12em] text-faint sm:inline">
               AI Visibility
             </span>
-          </a>
+          </Link>
 
           <nav className="flex items-center gap-1 sm:gap-2">
             <div className="mr-3 hidden items-center gap-6 md:flex">
-              {LINKS.map((l) => {
-                const isActive = active === l.href
-                return (
-                  <a
-                    key={l.href}
-                    href={l.href}
-                    aria-current={isActive ? "true" : undefined}
-                    className={
-                      "group flex items-baseline gap-1.5 py-1 text-[14px] font-medium transition-colors duration-200 hover:text-foreground focus-visible:text-foreground " +
-                      (isActive ? "text-foreground" : "text-muted-foreground")
-                    }
-                  >
-                    <span
-                      className={
-                        "font-mono text-[9px] tabular-nums transition-colors group-hover:text-blue " +
-                        (isActive ? "text-blue" : "text-faint")
-                      }
-                    >
-                      {l.n}
-                    </span>
-                    <span className="relative">
-                      {l.label}
+              {PAGES.map((l) => (
+                <NavLink
+                  key={l.to}
+                  to={l.to}
+                  className={({ isActive }) =>
+                    "group flex items-baseline gap-1.5 py-1 text-[14px] font-medium transition-colors duration-200 hover:text-foreground focus-visible:text-foreground " +
+                    (isActive ? "text-foreground" : "text-muted-foreground")
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
                       <span
                         className={
-                          "absolute inset-x-0 -bottom-0.5 h-[2px] origin-left bg-yellow transition-transform duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:scale-x-100 group-focus-visible:scale-x-100 " +
-                          (isActive ? "scale-x-100" : "scale-x-0")
+                          "font-mono text-[9px] tabular-nums transition-colors group-hover:text-blue " +
+                          (isActive ? "text-blue" : "text-faint")
                         }
-                      />
-                    </span>
-                  </a>
-                )
-              })}
+                      >
+                        {l.n}
+                      </span>
+                      <span className="relative">
+                        {l.label}
+                        <span
+                          className={
+                            "absolute inset-x-0 -bottom-0.5 h-[2px] origin-left bg-yellow transition-transform duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:scale-x-100 group-focus-visible:scale-x-100 " +
+                            (isActive ? "scale-x-100" : "scale-x-0")
+                          }
+                        />
+                      </span>
+                    </>
+                  )}
+                </NavLink>
+              ))}
             </div>
             <ThemeToggle />
-            <Button asChild size="sm" className="ml-1 hidden sm:inline-flex">
-              <a href="#build">Get recommended</a>
-            </Button>
+            <Magnetic strength={5} className="ml-1 hidden sm:inline-block">
+              <Button asChild size="sm">
+                <Link to="/try">Get recommended</Link>
+              </Button>
+            </Magnetic>
           </nav>
         </Container>
       </div>
