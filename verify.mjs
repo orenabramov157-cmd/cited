@@ -121,6 +121,95 @@ const browser = await chromium.launch()
   await page.waitForTimeout(500)
   const b = await shot()
   ok("home: field reacts to pointer movement", a !== b)
+
+  // the same ground continues on inner pages, which is what sells the illusion
+  await page.goto(BASE + "/method", { waitUntil: "networkidle" })
+  await page.waitForTimeout(900)
+  const innerField = await page.evaluate(() => {
+    const c = document.querySelector("main canvas")
+    return c ? c.width > 0 && c.height > 0 : false
+  })
+  ok("inner pages: pointer field continues onto the page head", innerField)
+  await page.close()
+}
+
+// ---------- the sideways illusion: scroll past the bottom to travel ----------
+{
+  const page = await browser.newPage({ viewport: { width: 1280, height: 860 } })
+  await page.goto(BASE + "/shift", { waitUntil: "networkidle" })
+  await page.waitForTimeout(700)
+
+  // scrolling mid-page must never be hijacked
+  await page.mouse.move(640, 430)
+  await page.mouse.wheel(0, 400)
+  await page.waitForTimeout(300)
+  const midPath = await page.evaluate(() => window.location.pathname)
+  ok("scroll advance: mid-page scrolling does not navigate", midPath === "/shift", midPath)
+
+  // land on the bottom, and the hint should name the next stop
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+  await page.waitForTimeout(400)
+  await page.mouse.wheel(0, 120)
+  await page.waitForTimeout(250)
+  const hint = await page.evaluate(() => {
+    const el = document.querySelector(".fixed.z-\\[58\\]")
+    return el ? el.textContent.replace(/\s+/g, " ").trim() : null
+  })
+  ok("scroll advance: edge hint names the next stop", !!hint && /The Team/.test(hint), hint)
+
+  // keep pushing and it commits, sideways, to the next page
+  for (let i = 0; i < 5; i++) {
+    await page.mouse.wheel(0, 160)
+    await page.waitForTimeout(70)
+  }
+  await page.waitForTimeout(1100)
+  const fwd = await page.evaluate(() => window.location.pathname)
+  ok("scroll advance: commits forward to the next page", fwd === "/team", fwd)
+  const top = await page.evaluate(() => window.scrollY)
+  ok("scroll advance: arrives at the top of the new page", top < 20, `scrollY=${top}`)
+
+  // and it is reversible: scroll up at the very top to walk back
+  await page.evaluate(() => window.scrollTo(0, 0))
+  await page.waitForTimeout(300)
+  for (let i = 0; i < 6; i++) {
+    await page.mouse.wheel(0, -160)
+    await page.waitForTimeout(70)
+  }
+  await page.waitForTimeout(1100)
+  const back = await page.evaluate(() => window.location.pathname)
+  ok("scroll advance: reverses back up the track", back === "/shift", back)
+
+  // the last stop must not strand you or fire into nothing
+  await page.goto(BASE + "/try", { waitUntil: "networkidle" })
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+  await page.waitForTimeout(300)
+  for (let i = 0; i < 6; i++) {
+    await page.mouse.wheel(0, 200)
+    await page.waitForTimeout(60)
+  }
+  await page.waitForTimeout(700)
+  const last = await page.evaluate(() => window.location.pathname)
+  ok("scroll advance: last stop stays put", last === "/try", last)
+  await page.close()
+}
+
+{
+  // under reduced motion the gesture is not installed at all: scrolling past
+  // the bottom must leave you exactly where you were
+  const page = await browser.newPage({
+    viewport: { width: 1280, height: 860 },
+    reducedMotion: "reduce",
+  })
+  await page.goto(BASE + "/shift", { waitUntil: "networkidle" })
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+  await page.waitForTimeout(250)
+  for (let i = 0; i < 8; i++) {
+    await page.mouse.wheel(0, 220)
+    await page.waitForTimeout(50)
+  }
+  await page.waitForTimeout(600)
+  const stayed = await page.evaluate(() => window.location.pathname)
+  ok("reduced motion: scroll advance disabled", stayed === "/shift", stayed)
   await page.close()
 }
 
@@ -350,10 +439,10 @@ const browser = await chromium.launch()
   ok("reduced motion: content immediately visible", !!heroVisible)
   const noCanvas = await page.evaluate(() => !document.querySelector("header canvas"))
   ok("reduced motion: pointer field not mounted", noCanvas)
-  const noCursor = await page.evaluate(
-    () => !document.querySelector(".fixed.z-\\[60\\]")
+  const noHint = await page.evaluate(
+    () => !document.querySelector(".fixed.z-\\[58\\]")
   )
-  ok("reduced motion: custom cursor ring not mounted", noCursor)
+  ok("reduced motion: scroll-advance hint not mounted", noHint)
 
   await page.goto(BASE + "/try", { waitUntil: "networkidle" })
   await page.fill("#biz", "a med spa")

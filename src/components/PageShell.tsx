@@ -5,8 +5,9 @@ import { ArrowRight } from "lucide-react"
 import { Container, Eyebrow, Marker } from "@/components/primitives"
 import { MaskLine } from "@/components/fx/SplitText"
 import { Magnetic } from "@/components/fx/Magnetic"
+import { PointerField } from "@/components/fx/PointerField"
 import { EASE_REVEAL } from "@/lib/motion"
-import { PAGES } from "@/components/Nav"
+import { trackIndex, TRACK } from "@/lib/route-order"
 import { cn } from "@/lib/utils"
 
 /**
@@ -28,12 +29,20 @@ export function PageHead({
 }) {
   const reduce = useReducedMotion()
   return (
-    <div className="pt-28 sm:pt-32">
+    <div className="relative pt-28 sm:pt-32">
+      {/* every stop stands on the same reactive ground as the hero */}
+      <PointerField
+        className="!inset-auto !left-0 !right-0 !top-0 h-[420px]"
+        gap={40}
+        radius={172}
+        push={22}
+        fade={0.3}
+      />
       <motion.div
         initial={reduce ? false : { opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="flex items-center gap-3.5 border-t-2 border-ink pt-3.5 dark:border-border-strong"
+        className="relative flex items-center gap-3.5 border-t-2 border-ink pt-3.5 dark:border-border-strong"
       >
         <span className="font-mono text-caption tabular-nums text-faint">{index}</span>
         <Eyebrow tone={tone}>
@@ -42,7 +51,7 @@ export function PageHead({
         </Eyebrow>
       </motion.div>
 
-      <h1 className="mt-7 max-w-[24ch] font-display text-h1 font-[640] tracking-[-0.03em]">
+      <h1 className="relative mt-7 max-w-[24ch] font-display text-h1 font-[640] tracking-[-0.03em]">
         {title}
       </h1>
 
@@ -51,7 +60,7 @@ export function PageHead({
           initial={reduce ? false : { opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, ease: EASE_REVEAL, delay: 0.34 }}
-          className="mt-6 max-w-[46ch] text-lead text-muted-foreground"
+          className="relative mt-6 max-w-[46ch] text-lead text-muted-foreground"
         >
           {lead}
         </motion.p>
@@ -63,8 +72,9 @@ export function PageHead({
 export { MaskLine }
 
 /**
- * End-of-page pager. Replaces "keep scrolling" with one deliberate step, and
- * it is the biggest hover target on the page so the motion has room to play.
+ * End-of-page pager. The scroll gesture already carries most people sideways
+ * to the next stop, so this is the deliberate, clickable, keyboard-reachable
+ * version of the same move — and the reason the gesture is never a trap.
  */
 export function PageNext({
   to,
@@ -75,7 +85,7 @@ export function PageNext({
   label: string
   kicker?: string
 }) {
-  const idx = PAGES.findIndex((p) => p.to === to)
+  const idx = trackIndex(to)
   return (
     <Container className="pb-16 pt-14">
       <Link
@@ -86,7 +96,7 @@ export function PageNext({
           <div>
             <span className="eyebrow text-faint">
               {kicker}
-              {idx >= 0 ? ` · ${PAGES[idx].n}` : ""}
+              {idx >= 0 ? ` · ${TRACK[idx].n}` : ""}
             </span>
             <div className="mt-2 font-display text-h2 font-[640] tracking-[-0.025em] transition-colors duration-300 group-hover:text-blue">
               <span className="relative inline-block">

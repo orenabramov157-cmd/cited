@@ -6,14 +6,10 @@ import { ThemeToggle } from "@/components/ThemeToggle"
 import { Container } from "@/components/primitives"
 import { Magnetic } from "@/components/fx/Magnetic"
 import { EASE_REVEAL } from "@/lib/motion"
+import { TRACK } from "@/lib/route-order"
 
-export const PAGES = [
-  { to: "/shift", label: "The Shift", n: "01" },
-  { to: "/team", label: "The Team", n: "02" },
-  { to: "/method", label: "Method", n: "03" },
-  { to: "/proof", label: "Proof", n: "04" },
-  { to: "/try", label: "Try it", n: "05" },
-]
+/** The nav shows every stop on the track except home, which is the wordmark. */
+export const PAGES = TRACK.filter((s) => s.to !== "/")
 
 export function Nav() {
   const [scrolled, setScrolled] = useState(false)

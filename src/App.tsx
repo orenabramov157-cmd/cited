@@ -2,8 +2,8 @@ import { lazy, Suspense } from "react"
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import { Nav } from "@/components/Nav"
 import { SiteFooter } from "@/components/SiteFooter"
-import { Cursor } from "@/components/fx/Cursor"
 import { PageTransition } from "@/components/fx/PageTransition"
+import { ScrollAdvance } from "@/components/fx/ScrollAdvance"
 import { LegalPage } from "@/components/LegalPage"
 import Home from "@/pages/Home"
 
@@ -16,8 +16,7 @@ const Try = lazy(() => import("@/pages/Try"))
 
 function Shell() {
   return (
-    <>
-      <Cursor />
+    <ScrollAdvance>
       <Nav />
       <main>
         <PageTransition>
@@ -37,7 +36,7 @@ function Shell() {
         </PageTransition>
       </main>
       <SiteFooter />
-    </>
+    </ScrollAdvance>
   )
 }
 
