@@ -21,13 +21,17 @@ import { ArrowRight, ArrowLeft } from "lucide-react"
 import { nextStop, prevStop, trackIndex, TRACK } from "@/lib/route-order"
 
 /** How much extra scroll intent past the edge commits to the next page. */
-const THRESHOLD = 340
+const THRESHOLD = 300
 /** Wheel deltas in "lines" need converting to something px-shaped. */
 const LINE_HEIGHT = 16
-/** No wheel/touch for this long and the lean relaxes back to rest. */
-const IDLE_MS = 160
-/** Input is swallowed for the length of the handoff, plus a beat to settle. */
+/** Grace period after the last input before the lean starts easing back. */
+const IDLE_MS = 300
+/** Per-frame decay once the grace period has passed. */
+const DECAY = 0.9
+/** Input is swallowed for at least the length of the handoff. */
 const LOCK_MS = 700
+/** ...and the lock only lifts once the flick that caused it has actually died. */
+const SETTLE_MS = 260
 
 type Ctx = {
   /** Signed lean, -1 (pulling back at the top) to 1 (pulling forward at the bottom). */
@@ -66,7 +70,7 @@ export function ScrollAdvance({ children }: { children: ReactNode }) {
   const [committing, setCommitting] = useState(false)
 
   const acc = useRef(0)
-  const idle = useRef<number | undefined>(undefined)
+  const lastInput = useRef(0)
   const locked = useRef(false)
   const firstRender = useRef(true)
 
@@ -89,12 +93,24 @@ export function ScrollAdvance({ children }: { children: ReactNode }) {
       locked.current = false
       return
     }
+    /**
+     * Hold the lock until the flick that triggered the handoff has genuinely
+     * died out. A fixed timer was not enough: the tail of a hard scroll kept
+     * arriving after the lock lifted and fired a second handoff, so one flick
+     * skipped two pages.
+     */
     locked.current = true
-    const t = window.setTimeout(() => {
-      locked.current = false
-      setCommitting(false)
-    }, LOCK_MS)
-    return () => window.clearTimeout(t)
+    const started = performance.now()
+    const poll = window.setInterval(() => {
+      const quiet = performance.now() - lastInput.current > SETTLE_MS
+      const held = performance.now() - started >= LOCK_MS
+      if (quiet && held) {
+        window.clearInterval(poll)
+        locked.current = false
+        setCommitting(false)
+      }
+    }, 80)
+    return () => window.clearInterval(poll)
   }, [pathname, pull])
 
   /**
@@ -159,24 +175,37 @@ export function ScrollAdvance({ children }: { children: ReactNode }) {
       return true
     }
 
-    const scheduleRelax = () => {
-      window.clearTimeout(idle.current)
-      idle.current = window.setTimeout(() => {
-        if (!locked.current && acc.current !== 0) relax()
-      }, IDLE_MS)
+    /**
+     * The lean decays instead of being wiped on a timer. A hard reset punished
+     * anyone who scrolls in slow deliberate nudges rather than one long flick:
+     * their intent evaporated between events and they could never reach the
+     * threshold. Now it bleeds away, so slow pushes still accumulate and
+     * letting go eases back to rest.
+     */
+    let raf = 0
+    const tick = () => {
+      raf = requestAnimationFrame(tick)
+      if (acc.current === 0 || locked.current) return
+      if (performance.now() - lastInput.current < IDLE_MS) return
+      acc.current *= DECAY
+      if (Math.abs(acc.current) < 6) acc.current = 0
+      pull.set(acc.current / THRESHOLD)
     }
+    raf = requestAnimationFrame(tick)
 
     const onWheel = (e: WheelEvent) => {
       if (e.ctrlKey) return // pinch zoom, not travel
       if (locked.current) {
-        // mid-handoff: absorb the tail of the flick instead of acting on it
+        // mid-handoff: absorb the tail of the flick instead of acting on it,
+        // and let it keep the lock alive while it lasts
+        lastInput.current = performance.now()
         e.preventDefault()
         window.scrollTo({ top: 0, behavior: "auto" })
         return
       }
       const dy = e.deltaMode === 1 ? e.deltaY * LINE_HEIGHT : e.deltaY
+      lastInput.current = performance.now()
       if (feed(dy)) e.preventDefault()
-      scheduleRelax()
     }
 
     let touchY: number | null = null
@@ -185,6 +214,7 @@ export function ScrollAdvance({ children }: { children: ReactNode }) {
     }
     const onTouchMove = (e: TouchEvent) => {
       if (locked.current) {
+        lastInput.current = performance.now()
         e.preventDefault()
         return
       }
@@ -192,6 +222,7 @@ export function ScrollAdvance({ children }: { children: ReactNode }) {
       if (y == null || touchY == null) return
       const dy = (touchY - y) * 1.5 // finger travel is smaller than wheel travel
       touchY = y
+      lastInput.current = performance.now()
       if (feed(dy)) e.preventDefault()
     }
     const onTouchEnd = () => {
@@ -214,7 +245,7 @@ export function ScrollAdvance({ children }: { children: ReactNode }) {
     window.addEventListener("touchcancel", onTouchEnd, { passive: true })
 
     return () => {
-      window.clearTimeout(idle.current)
+      cancelAnimationFrame(raf)
       window.removeEventListener("scroll", onScroll)
       window.removeEventListener("wheel", onWheel)
       window.removeEventListener("touchstart", onTouchStart)

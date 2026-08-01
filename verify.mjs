@@ -179,6 +179,21 @@ const browser = await chromium.launch()
   const back = await page.evaluate(() => window.location.pathname)
   ok("scroll advance: reverses back up the track", back === "/shift", back)
 
+  // one flick must move exactly one page: the tail of a hard scroll used to
+  // arrive after the lock lifted and skip a second page
+  await page.goto(BASE + "/shift", { waitUntil: "networkidle" })
+  await page.waitForTimeout(500)
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+  await page.waitForTimeout(350)
+  await page.mouse.move(640, 500)
+  for (let i = 0; i < 16; i++) {
+    await page.mouse.wheel(0, 220)
+    await page.waitForTimeout(40)
+  }
+  await page.waitForTimeout(1600)
+  const oneStep = await page.evaluate(() => window.location.pathname)
+  ok("scroll advance: one flick advances exactly one page", oneStep === "/team", oneStep)
+
   // the last stop must not strand you or fire into nothing
   await page.goto(BASE + "/try", { waitUntil: "networkidle" })
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
