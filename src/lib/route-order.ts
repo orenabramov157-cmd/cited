@@ -10,7 +10,8 @@ export const TRACK = [
   { to: "/team", label: "The Team", n: "02" },
   { to: "/method", label: "Method", n: "03" },
   { to: "/proof", label: "Proof", n: "04" },
-  { to: "/try", label: "Try it", n: "05" },
+  { to: "/pricing", label: "Pricing", n: "05" },
+  { to: "/try", label: "Try it", n: "06" },
 ] as const
 
 export type TrackStop = (typeof TRACK)[number]

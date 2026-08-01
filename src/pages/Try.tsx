@@ -8,7 +8,7 @@ export default function Try() {
     <>
       <Container>
         <PageHead
-          index="05"
+          index="06"
           eyebrow="Try it"
           title={
             <>

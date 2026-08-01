@@ -86,7 +86,7 @@ export function Nav() {
             <ThemeToggle />
             <Magnetic strength={5} className="ml-1 hidden sm:inline-block">
               <Button asChild size="sm">
-                <Link to="/try">Get recommended</Link>
+                <Link to="/demo">Get your report</Link>
               </Button>
             </Magnetic>
           </nav>

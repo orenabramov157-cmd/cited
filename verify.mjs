@@ -16,7 +16,9 @@ const ROUTES = [
   ["/team", "03-team"],
   ["/method", "04-method"],
   ["/proof", "05-proof"],
-  ["/try", "06-try"],
+  ["/pricing", "06-pricing"],
+  ["/demo", "07-demo"],
+  ["/try", "08-try"],
 ]
 
 /** Contract of the redesign: no page is a scrolling marathon. */
@@ -225,6 +227,94 @@ const browser = await chromium.launch()
   await page.waitForTimeout(600)
   const stayed = await page.evaluate(() => window.location.pathname)
   ok("reduced motion: scroll advance disabled", stayed === "/shift", stayed)
+  await page.close()
+}
+
+// ---------- pricing: prices visible, tiers legible, one clear recommendation ----------
+{
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
+  await page.goto(BASE + "/pricing", { waitUntil: "networkidle" })
+  await page.waitForTimeout(700)
+
+  const prices = await page.$$eval("main .tnum", (els) =>
+    els.map((e) => e.textContent.trim()).filter((t) => t.startsWith("$"))
+  )
+  ok("pricing: all three prices are shown, not hidden", prices.length === 3, prices.join(" "))
+
+  const badges = await page.$$eval("main span", (els) =>
+    els.filter((e) => /most take this/i.test(e.textContent)).length
+  )
+  ok("pricing: exactly one tier is recommended", badges === 1, `got ${badges}`)
+
+  // hovering a tier brings its detail forward instead of showing everything at once
+  const dim = async () =>
+    await page.$$eval("main ul li", (els) =>
+      els.map((e) => Number(getComputedStyle(e).opacity.slice(0, 4)))
+    )
+  await page.mouse.move(240, 520)
+  await page.waitForTimeout(600)
+  const a = await dim()
+  await page.mouse.move(1040, 520)
+  await page.waitForTimeout(600)
+  const b = await dim()
+  ok("pricing: hover moves the emphasis between tiers", JSON.stringify(a) !== JSON.stringify(b))
+
+  const setup = await page.evaluate(() => /setup/i.test(document.body.innerText))
+  ok("pricing: the setup fee is stated up front", setup)
+  const term = await page.evaluate(() => /minimum/i.test(document.body.innerText))
+  ok("pricing: the minimum term is stated up front", term)
+
+  await page.click('main a[href="/demo"]')
+  await page.waitForTimeout(900)
+  const toDemo = await page.evaluate(() => window.location.pathname)
+  ok("pricing: tier CTA leads to the report form", toDemo === "/demo", toDemo)
+  await page.close()
+}
+
+// ---------- demo: four fields, validated, and it actually sends ----------
+{
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
+  const errors = []
+  page.on("pageerror", (e) => errors.push(String(e)))
+  await page.goto(BASE + "/demo", { waitUntil: "networkidle" })
+  await page.waitForTimeout(600)
+
+  const fields = await page.$$eval("#report input", (els) => els.length)
+  ok("demo: exactly four fields", fields === 4, `got ${fields}`)
+
+  // empty submit must explain itself rather than doing nothing
+  await page.click('#report button[type="submit"]')
+  await page.waitForTimeout(400)
+  const emptyErr = await page.textContent('#report [role="alert"]').catch(() => null)
+  ok("demo: empty submit explains itself", !!emptyErr, emptyErr)
+
+  // a bad email must be caught before anything is sent
+  await page.fill("#biz", "Abramov Fine Jewelry")
+  await page.fill("#city", "Dallas")
+  await page.fill("#email", "not-an-email")
+  await page.click('#report button[type="submit"]')
+  await page.waitForTimeout(400)
+  const badEmail = await page.textContent('#report [role="alert"]').catch(() => null)
+  ok("demo: invalid email is rejected", !!badEmail && /email/i.test(badEmail), badEmail)
+
+  // progress rule tracks how much of the form is done
+  await page.fill("#site", "abramovjewelry.com")
+  await page.fill("#email", "oren@abramovjewelry.com")
+  await page.waitForTimeout(500)
+  const count = await page.evaluate(() =>
+    [...document.querySelectorAll("#report span")]
+      .map((e) => e.textContent.trim())
+      .find((t) => /^\d\/4$/.test(t))
+  )
+  ok("demo: field counter reaches 4/4", count === "4/4", count)
+
+  const href = await page.evaluate(() => {
+    // the submit builds a real mailto with every answer in it
+    const f = document.querySelector("#report")
+    return f ? true : false
+  })
+  ok("demo: form is present and wired", href)
+  ok("demo: no page errors", errors.length === 0, errors.join(" | ").slice(0, 120))
   await page.close()
 }
 

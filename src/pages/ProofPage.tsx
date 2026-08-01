@@ -24,7 +24,7 @@ export default function ProofPage() {
 
       <Proof />
 
-      <PageNext to="/try" label="Try it yourself" />
+      <PageNext to="/pricing" label="What it costs" />
     </>
   )
 }

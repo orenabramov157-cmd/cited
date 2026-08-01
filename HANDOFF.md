@@ -6,10 +6,14 @@ fully before editing. Violating these creates work instead of saving it.
 
 ## Structure (since the multi-page redesign)
 
-Six routes via react-router: `/` `/shift` `/team` `/method` `/proof` `/try`.
-Page files live in `src/pages/`, the shared masthead/pager in
-`src/components/PageShell.tsx`, the motion primitives in
-`src/components/fx/`. Do not reintroduce one-page anchor scrolling.
+Eight routes via react-router. Six are stops on one running order, the
+"track": `/` `/shift` `/team` `/method` `/proof` `/pricing` `/try`, with
+`/demo` off-track as the conversion destination (plus `/terms` `/privacy`).
+`src/lib/route-order.ts` is the single source of truth for that order: the
+scroll gesture, the pager, the nav and the direction of every transition all
+read it, so never hardcode a second list. Page files live in `src/pages/`, the
+shared masthead/pager in `src/components/PageShell.tsx`, the motion primitives
+in `src/components/fx/`. Do not reintroduce one-page anchor scrolling.
 
 ## Non-negotiable constraints
 
@@ -31,23 +35,48 @@ Page files live in `src/pages/`, the shared masthead/pager in
    reviews, answer content). Never name specific sources, sequences,
    thresholds, or scripts. That is the product's IP.
 8. **Motion doctrine (updated 2026-07-31, owner approved "more animation"):**
-   the site is motion-forward but palette-quiet. Cursor-reactive first:
-   `PointerField` (canvas tick grid displaced by the pointer) on the hero,
+   the site is motion-forward but palette-quiet, and the reference is
+   lusion.co. Surfaces react to the pointer; nothing chases it. `PointerField`
+   (canvas tick grid displaced by the pointer) on the hero and every page head,
    `Tilt` for panels, `Magnetic` for primary buttons and the pager, `MaskLine`
-   for headline entrances, `PageTransition` between routes, `Cursor` ring on
-   desktop. Scroll-scrubbed counter-drift via `Rise` still carries in-page
-   reveals. Everything instant, and the canvas/cursor unmounted entirely,
+   for headline entrances. Scroll-scrubbed counter-drift via `Rise` carries
+   in-page reveals. Everything instant, and every canvas unmounted entirely,
    under prefers-reduced-motion. Do NOT add motion by adding scroll length:
    pages are capped at ~3200px and the harness fails if one grows past it.
-9. **Accessibility holds:** visible focus states, aria labels, contrast at
+   **A trailing cursor ring was built and then removed at the owner's request
+   (2026-07-31). Do not reintroduce it.** What he likes is fields that bend
+   around the pointer, not a dot following it.
+9. **The sideways illusion (`fx/ScrollAdvance.tsx` + `fx/PageTransition.tsx`).**
+   Scrolling is never hijacked mid-page. Once a page has nothing left below it,
+   further downward intent leans the page, resists, and hands off horizontally
+   to the next stop; scrolling up at the very top walks back. If you touch it,
+   these properties are load-bearing and each has a test: intent accumulates
+   past a threshold rather than firing on a hair trigger; the lean **decays**
+   instead of being reset on a timer, so slow deliberate scrolling still works;
+   the lock holds until the flick that caused it dies out, so one flick moves
+   exactly one page; a cold load never swallows the first scroll; the last stop
+   stays put; and under prefers-reduced-motion the gesture is not installed at
+   all. The pager, nav, keyboard and back button must always keep working. It
+   must never become a trap.
+10. **Accessibility holds:** visible focus states, aria labels, contrast at
    WCAG AA in BOTH themes (light default + dim mode via the toggle).
+
+## Pricing page: proposed, not approved
+
+`/pricing` ships real dollar figures ($997 / $1,997 / $3,997 per month, plus
+setup fees and minimum terms). They are a **research-backed proposal awaiting
+the owner's sign-off**, benchmarked against GEO agency and local SEO retainer
+rates, not numbers he gave us. Do not treat them as settled, and do not let
+them reach production without his explicit yes. The "why no free trial"
+argument rests on measured citation decay; keep it qualitative on-page unless a
+cited figure is added deliberately (see constraint 6).
 
 ## How your work gets accepted
 
 The owner validates every external change back in Claude Code with:
 
     npm run build        # must stay clean
-    node verify.mjs      # Playwright harness, must stay 59/59 (dev server on :4599)
+    node verify.mjs      # Playwright harness, must stay 90/90 (dev server on :4599)
 
 Anything that breaks either gets reverted without discussion. Small,
 reviewable commits survive; repo-wide rewrites don't.

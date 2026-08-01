@@ -12,6 +12,8 @@ const Shift = lazy(() => import("@/pages/Shift"))
 const Team = lazy(() => import("@/pages/Team"))
 const Method = lazy(() => import("@/pages/Method"))
 const ProofPage = lazy(() => import("@/pages/ProofPage"))
+const Pricing = lazy(() => import("@/pages/Pricing"))
+const Demo = lazy(() => import("@/pages/Demo"))
 const Try = lazy(() => import("@/pages/Try"))
 
 function Shell() {
@@ -27,6 +29,8 @@ function Shell() {
               <Route path="/team" element={<Team />} />
               <Route path="/method" element={<Method />} />
               <Route path="/proof" element={<ProofPage />} />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/demo" element={<Demo />} />
               <Route path="/try" element={<Try />} />
               <Route path="/terms" element={<LegalPage doc="terms" />} />
               <Route path="/privacy" element={<LegalPage doc="privacy" />} />

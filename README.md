@@ -46,7 +46,7 @@ npm run build && npx wrangler pages dev dist   # http://localhost:8788
 
 ## Routes
 
-`/` `/shift` `/team` `/method` `/proof` `/try`, plus `/terms` and `/privacy`.
+`/` `/shift` `/team` `/method` `/proof` `/pricing` `/try`, plus `/demo`, plus `/terms` and `/privacy`.
 Every page is under ~3200px tall; the harness enforces it. Inner pages are
 lazy-loaded chunks, so the first paint only pays for the hero.
 
