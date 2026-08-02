@@ -7,6 +7,15 @@
 
 export const CONTACT_EMAIL = "orenabramov157@gmail.com"
 
+/**
+ * A number a person can actually call. Every done-for-you service aimed at
+ * local business owners publishes one, because that buyer picks up the phone
+ * before they fill in a form. Displayed and dialled from the same constant so
+ * the two can never drift apart.
+ */
+export const CONTACT_PHONE = "+19727422543"
+export const CONTACT_PHONE_DISPLAY = "(972) 742-2543"
+
 export type Agent = { name: string; move: string }
 export type TeamResult = { agents: Agent[]; source: "live" | "stub" }
 

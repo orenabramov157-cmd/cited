@@ -2,3 +2,16 @@ name = "cited"
 compatibility_date = "2026-07-01"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = "dist"
+
+# Abuse ceiling for the one endpoint that spends money. Ten calls a minute per
+# IP is far above what a real visitor generating one team could ever need, and
+# far below what makes an attack worth running. Enforced per Cloudflare
+# location, so treat it as a brake rather than a wall: the spend cap on the
+# Anthropic key is the real stop.
+[[ratelimits]]
+name = "TEAM_LIMITER"
+namespace_id = "1001"
+
+  [ratelimits.simple]
+  limit = 10
+  period = 60

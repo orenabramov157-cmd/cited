@@ -1,5 +1,5 @@
 import { Lock, Camera, Repeat2 } from "lucide-react"
-import { Container, SectionHeading } from "@/components/primitives"
+import { Container } from "@/components/primitives"
 import { Rise } from "@/components/Rise"
 
 /**
@@ -16,30 +16,12 @@ const ROWS = [
 
 export function Proof() {
   return (
-    <section id="proof" className="relative border-t border-border bg-panel py-8 md:py-12">
+    <section id="proof" className="relative py-4 md:py-6">
       <Container>
         <div className="lg:grid lg:grid-cols-12 lg:gap-10">
           {/* dominant mass: the live scorecard */}
           <div className="lg:col-span-8">
-            <SectionHeading
-              eyebrow="The Proof"
-              index="04"
-              tone="coral"
-              title={
-                <>
-                  Results get published.{" "}
-                  <span className="text-coral">The recipe doesn't.</span>
-                </>
-              }
-              lead={
-                <>
-                  Client zero: our own Dallas jewelry store. The scorecard fills in as
-                  dated evidence lands. No numbers until they're real.
-                </>
-              }
-            />
-
-            <Rise amount={48} className="mt-10 overflow-x-auto">
+            <Rise amount={26} className="overflow-x-auto">
               <div className="min-w-[560px] rounded-[var(--r-lg)] border border-border bg-raised">
                 {/* head */}
                 <div className="flex items-center justify-between border-b border-border px-5 py-3 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
@@ -86,7 +68,7 @@ export function Proof() {
               </div>
             </Rise>
 
-            <p className="mt-4 max-w-[64ch] font-mono text-[10.5px] leading-relaxed text-faint">
+            <p className="mt-10 max-w-[64ch] font-mono text-[10.5px] leading-relaxed text-faint">
               Claim format once live: “absent → named in X of Y query-runs, cited with
               link in Z”, engine and date attached. Aggregates only.
             </p>
@@ -95,9 +77,9 @@ export function Proof() {
           {/* counterweight rail: the client-side brisk summary */}
           <aside className="mt-12 lg:col-span-4 lg:mt-24">
             <Rise amount={64} className="border-t-2 border-ink pt-6 dark:border-border-strong">
-              <h3 className="font-display text-h3 font-[640] tracking-[-0.01em]">
+              <h2 className="font-display text-h3 font-[640] tracking-[-0.01em]">
                 What you see as a client
-              </h3>
+              </h2>
               <ol className="mt-5 flex flex-col gap-4">
                 {[
                   ["01", "Baseline scorecard: where you stand, engine by engine."],

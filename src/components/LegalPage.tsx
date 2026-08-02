@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 import { ArrowLeft } from "lucide-react"
+import { Link } from "react-router-dom"
 import { Container } from "@/components/primitives"
-import { SiteFooter } from "@/components/SiteFooter"
 
 const EFFECTIVE = "July 30, 2026"
 const CONTACT = "orenabramov157@gmail.com"
@@ -204,26 +204,20 @@ export function LegalPage({ doc }: { doc: "terms" | "privacy" }) {
     window.scrollTo(0, 0)
   }, [doc])
 
+  // The shell already supplies Nav, <main> and the footer. Rendering our own
+  // here nested a <main> inside a <main> and shipped two headers and two
+  // footers, which is invalid HTML and breaks landmark navigation.
   return (
-    <>
-      <header className="border-b border-border">
-        <Container className="flex h-16 items-center justify-between">
-          <a href="/" className="flex items-baseline gap-2.5" aria-label="Cited — home">
-            <span className="inline-block size-[9px] rounded-[1px] bg-blue" aria-hidden />
-            <span className="font-display text-[22px] font-[640] tracking-[-0.02em]">Cited</span>
-          </a>
-          <a
-            href="/"
-            className="inline-flex items-center gap-1.5 text-[14px] font-medium text-muted-foreground transition-colors hover:text-blue"
-          >
-            <ArrowLeft size={15} aria-hidden /> Back to site
-          </a>
-        </Container>
-      </header>
-      <main className="py-14 md:py-18">
-        <Container className="max-w-[760px]">{doc === "terms" ? <Terms /> : <Privacy />}</Container>
-      </main>
-      <SiteFooter />
-    </>
+    <div className="pt-24 pb-14 md:pt-28 md:pb-18">
+      <Container className="max-w-[760px]">
+        <Link
+          to="/"
+          className="mb-9 inline-flex items-center gap-1.5 text-[14px] font-medium text-muted-foreground transition-colors hover:text-blue"
+        >
+          <ArrowLeft size={15} aria-hidden /> Back to site
+        </Link>
+        {doc === "terms" ? <Terms /> : <Privacy />}
+      </Container>
+    </div>
   )
 }

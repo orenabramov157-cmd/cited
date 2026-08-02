@@ -6,15 +6,21 @@ import Anthropic from "@anthropic-ai/sdk"
  * The client falls back to its built-in stub on any non-200, so this
  * endpoint can be absent/offline without breaking the site.
  *
- * Cost note: ~1–2¢ per draft on claude-opus-5. To cut ~10x, change MODEL
- * to "claude-haiku-4-5" (quality drop is acceptable for this use).
- *
- * SECURITY: this endpoint spends money per request. Abuse control is NOT
- * complete here — see RATE LIMITING below. Do not deploy publicly until a
- * Cloudflare-side limit is in place.
+ * SECURITY: this endpoint spends money on every request, so it is the only
+ * part of the site an attacker can make expensive. Four layers stand in front
+ * of the paid call, cheapest first: a Cloudflare rate-limit binding, a JSON
+ * content-type requirement, a body-size cap, and Turnstile. A spend ceiling on
+ * the Anthropic key itself is the backstop behind all of them, and it lives in
+ * the Anthropic console rather than in this repo.
  */
 
-const MODEL = "claude-opus-5"
+/**
+ * Haiku, not Opus. This is a short, structured, low-stakes marketing sketch,
+ * and Opus costs roughly eighteen times as much for output nobody can tell
+ * apart here. On a public endpoint that difference is the difference between
+ * an annoying abuse bill and a ruinous one.
+ */
+const MODEL = "claude-haiku-4-5"
 
 /** Exactly six agents is the product contract — enforced on both tiers. */
 const TEAM_SIZE = 6
@@ -69,7 +75,18 @@ const SCHEMA = {
   additionalProperties: false,
 } as const
 
-type Env = { ANTHROPIC_API_KEY?: string; TURNSTILE_SECRET?: string }
+/**
+ * The rate limiter is a Cloudflare binding, declared in wrangler.toml. It is
+ * optional in the type on purpose: `vite dev` has no bindings, and the
+ * endpoint must still work locally without one.
+ */
+type RateLimiter = { limit: (opts: { key: string }) => Promise<{ success: boolean }> }
+
+type Env = {
+  ANTHROPIC_API_KEY?: string
+  TURNSTILE_SECRET?: string
+  TEAM_LIMITER?: RateLimiter
+}
 type Agent = { name: string; move: string }
 
 /** Turnstile response tokens are a few hundred chars; bound generously. */
@@ -151,13 +168,24 @@ export const onRequestPost = async (ctx: {
   const { request, env } = ctx
   if (!env.ANTHROPIC_API_KEY) return json({ error: "generator_offline" }, 503)
 
-  // --- RATE LIMITING (H1) ---------------------------------------------------
-  // Per-isolate counters are NOT reliable across Cloudflare isolates, so real
-  // enforcement must be a Cloudflare WAF rate-limit rule or a Rate Limiting
-  // binding in front of this route, plus a spend ceiling on the API key.
-  // This block is the contract the client already understands (429 → stub).
-  // Wire the binding before the first public deploy — see RECOMMENDATIONS.md.
-  // -------------------------------------------------------------------------
+  /**
+   * Rate limit first, before any parsing, so a flood costs us as close to
+   * nothing as possible. The binding counts per Cloudflare location rather
+   * than globally, which is enough to stop a single machine hammering the
+   * endpoint; a distributed flood is what the Turnstile check and the spend
+   * ceiling are for. A missing binding (local dev) must not fail the request.
+   */
+  const ip = request.headers.get("cf-connecting-ip") || "unknown"
+  if (env.TEAM_LIMITER) {
+    try {
+      const { success } = await env.TEAM_LIMITER.limit({ key: ip })
+      // 429 is a contract the client already understands: it falls back to
+      // the built-in stub, so a limited visitor still sees a working page.
+      if (!success) return json({ error: "rate_limited" }, 429)
+    } catch {
+      // a broken limiter must not take the endpoint down with it
+    }
+  }
 
   // Reject non-JSON so a simple cross-origin form post can't spend money.
   const contentType = request.headers.get("content-type") || ""

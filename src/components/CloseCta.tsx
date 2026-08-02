@@ -31,7 +31,7 @@ export function CloseCta() {
           </Rise>
           <div className="mt-10 lg:col-span-3 lg:mt-0 lg:justify-self-end">
             <Button asChild size="lg">
-              <a href="#build">
+              <a href="#build" aria-label="Build your team">
                 Build your team <ArrowRight />
               </a>
             </Button>

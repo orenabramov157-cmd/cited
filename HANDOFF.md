@@ -4,11 +4,25 @@ This repo is production-bound and carries hard constraints. If you are an AI
 tool (v0, Bolt, Lovable, Replit, a cheaper Claude chat, anyone): read this
 fully before editing. Violating these creates work instead of saving it.
 
+## Structure (since the multi-page redesign)
+
+Eight routes via react-router. Six are stops on one running order, the
+"track": `/` `/shift` `/team` `/method` `/proof` `/pricing` `/try`, with
+`/demo` off-track as the conversion destination (plus `/terms` `/privacy`).
+`src/lib/route-order.ts` is the single source of truth for that order: the
+scroll gesture, the pager, the nav and the direction of every transition all
+read it, so never hardcode a second list. Page files live in `src/pages/`, the
+shared masthead/pager in `src/components/PageShell.tsx`, the motion primitives
+in `src/components/fx/`. Do not reintroduce one-page anchor scrolling.
+
 ## Non-negotiable constraints
 
 1. **Work on a branch, never main.** Name it `polish/<something>`.
-2. **Do not touch:** `functions/` (hardened API), `verify.mjs` (test harness),
-   `wrangler.toml`, `KEY-SETUP.md`, `FINDINGS.md`, anything in `.dev.vars`.
+2. **Do not touch:** `KEY-SETUP.md`, `FINDINGS.md`, anything in `.dev.vars`.
+   `functions/`, `wrangler.toml` and `verify.mjs` were opened up on 2026-08-02
+   for the security pass at the owner's explicit request; treat them as
+   editable but read `SECURITY.md` before changing anything in them, and never
+   weaken a layer described there without saying so out loud.
 3. **Locked palette. Never introduce:** purple/violet/lavender/magenta,
    gold/brown, dark full-bleed sections (the site is a continuous light
    paper system; navy was tried and rejected). Tokens live in
@@ -23,20 +37,73 @@ fully before editing. Violating these creates work instead of saving it.
 7. **The method stays vague on-page.** Categories only (citations, schema,
    reviews, answer content). Never name specific sources, sequences,
    thresholds, or scripts. That is the product's IP.
-8. **Motion doctrine:** scroll-scrubbed counter-drift via the `Rise`
-   component (blocks glide up while the user scrolls, both directions),
-   varied speeds between neighbors, one-shot pops only on small internals,
-   never pin/stick content sections, everything instant under
-   prefers-reduced-motion.
-9. **Accessibility holds:** visible focus states, aria labels, contrast at
+8. **Motion doctrine (updated 2026-07-31, owner approved "more animation"):**
+   the site is motion-forward but palette-quiet, and the reference is
+   lusion.co. Surfaces react to the pointer; nothing chases it. `PointerField`
+   (canvas tick grid displaced by the pointer) on the hero and every page head,
+   `Tilt` for panels, `Magnetic` for primary buttons and the pager, `MaskLine`
+   for headline entrances. Scroll-scrubbed counter-drift via `Rise` carries
+   in-page reveals. Everything instant, and every canvas unmounted entirely,
+   under prefers-reduced-motion. Do NOT add motion by adding scroll length:
+   pages are capped at ~3200px and the harness fails if one grows past it.
+9. **The handoff must never show an empty screen, and must never freeze.**
+   These are measured contracts, not opinions, and `verify.mjs` enforces them.
+   The rules, and the bugs behind each:
+   - The edge sign is not destroyed at commit. It persists and its rule
+     switches from tracking the gesture to tracking the journey. It once died
+     19ms after commit, leaving nothing on screen for roughly half a second.
+   - The covered moment carries the destination name (`SeamTitle`). It does
+     not ride the covering band, because a centred thing on a sliding band
+     leaves the viewport in about fifty milliseconds.
+   - The input lock is a fixed duration and nothing may extend it. An earlier
+     version held the lock until input went quiet, and refreshed "quiet" on
+     every event, so continuous scrolling froze the page for over six seconds.
+   - Skipping stops is prevented by a spent-gesture flag, NOT by holding the
+     lock. The flag clears on a real pause in input or once the new page has
+     actually been scrolled, so the wheel is never ignored at a page edge.
+   - Page Down, Page Up and the arrows advance the track from the edges, and
+     must keep doing nothing while a form field has focus.
+10. **Every page ends with a way to act.** `ConversionBand` sits above the
+   footer on every page except `/demo` and the legal pages, `MobileActionBar`
+   carries the same action on phones, and the phone number is published in the
+   nav, the footer and both of those. Fourteen comparable sites were measured:
+   the median homepage offers several routes to a demo, and this one offered
+   none before 2026-08-02. Do not quietly reduce that coverage.
+   **A trailing cursor ring was built and then removed at the owner's request
+   (2026-07-31). Do not reintroduce it.** What he likes is fields that bend
+   around the pointer, not a dot following it.
+9. **The sideways illusion (`fx/ScrollAdvance.tsx` + `fx/PageTransition.tsx`).**
+   Scrolling is never hijacked mid-page. Once a page has nothing left below it,
+   further downward intent leans the page, resists, and hands off horizontally
+   to the next stop; scrolling up at the very top walks back. If you touch it,
+   these properties are load-bearing and each has a test: intent accumulates
+   past a threshold rather than firing on a hair trigger; the lean **decays**
+   instead of being reset on a timer, so slow deliberate scrolling still works;
+   the lock holds until the flick that caused it dies out, so one flick moves
+   exactly one page; a cold load never swallows the first scroll; the last stop
+   stays put; and under prefers-reduced-motion the gesture is not installed at
+   all. The pager, nav, keyboard and back button must always keep working. It
+   must never become a trap.
+10. **Accessibility holds:** visible focus states, aria labels, contrast at
    WCAG AA in BOTH themes (light default + dim mode via the toggle).
+
+## Pricing: custom quotes only (owner decision, 2026-08-01)
+
+The owner rejected fixed menu prices: every engagement is priced to the
+business, so `/pricing` shows tier SHAPES with "Priced to you" and every CTA
+routes to `/demo`, where the onboarding questionnaire (who they are, what they
+do, team size, locations) collects what a quote needs. Never reintroduce
+dollar figures on the site. Never state engine counts other than the flat
+fact: all four engines (ChatGPT, Perplexity, Gemini, Claude) on every tier;
+"more engines on higher tiers" was an invented differentiator and is banned
+under constraint 6. The "why no free trial" argument stays qualitative.
 
 ## How your work gets accepted
 
 The owner validates every external change back in Claude Code with:
 
     npm run build        # must stay clean
-    node verify.mjs      # Playwright harness, must stay 23/23 (dev server on :4599)
+    node verify.mjs      # Playwright harness, must stay 90/90 (dev server on :4599)
 
 Anything that breaks either gets reverted without discussion. Small,
 reviewable commits survive; repo-wide rewrites don't.

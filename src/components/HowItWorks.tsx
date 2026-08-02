@@ -11,7 +11,7 @@ import {
   type MotionValue,
 } from "framer-motion"
 import { ArrowRight } from "lucide-react"
-import { Container, SectionHeading } from "@/components/primitives"
+import { Container } from "@/components/primitives"
 import { Rise } from "@/components/Rise"
 import { cn } from "@/lib/utils"
 
@@ -114,26 +114,9 @@ export function HowItWorks() {
   }
 
   return (
-    <section id="how" className="relative border-t border-border py-8 md:py-12">
+    <section id="how" className="relative py-2 md:py-4">
       <Container>
-        <SectionHeading
-          eyebrow="The Method"
-          index="03"
-          tone="green"
-          title={
-            <>
-              We don't guess. We measure it, move it,{" "}
-              <span className="text-green">and measure again.</span>
-            </>
-          }
-          lead={
-            <>
-              A before-and-after on your real customer questions. Lift, not vibes.
-            </>
-          }
-        />
-
-        <div className="mt-10 lg:grid lg:grid-cols-12 lg:gap-x-8">
+        <div className="lg:grid lg:grid-cols-12 lg:gap-x-8">
           {/* pinned rail — stays with you while the steps scroll (lg+) */}
           <div className="hidden lg:col-span-4 lg:block">
             <nav
@@ -172,9 +155,9 @@ export function HowItWorks() {
                       {s.k}
                     </span>
                   </div>
-                  <h3 className="mt-3 max-w-[24ch] font-display text-[1.6rem] font-[620] leading-[1.15] tracking-[-0.02em] sm:text-[1.85rem]">
+                  <h2 className="mt-3 max-w-[24ch] font-display text-[1.6rem] font-[620] leading-[1.15] tracking-[-0.02em] sm:text-[1.85rem]">
                     {s.title}
-                  </h3>
+                  </h2>
                   <p className="mt-2.5 max-w-[52ch] text-[16px] leading-relaxed text-muted-foreground">
                     {s.d}
                   </p>

@@ -19,8 +19,9 @@ import {
   useTransform,
 } from "framer-motion"
 import { ArrowRight } from "lucide-react"
-import { Container, SectionHeading } from "@/components/primitives"
+import { Container } from "@/components/primitives"
 import { Rise } from "@/components/Rise"
+import { Tilt } from "@/components/fx/Tilt"
 import { CountNumber } from "@/components/CountNumber"
 import { EASE_REVEAL } from "@/lib/motion"
 
@@ -95,29 +96,12 @@ export function VisibilityGap() {
   return (
     <section
       ref={sectionRef}
-      className="relative border-y border-border bg-panel py-8 md:py-12"
+      className="relative py-4 md:py-6"
     >
       <Container>
+        {/* marginal annotation — the stake, stated once */}
         <div className="lg:grid lg:grid-cols-12 lg:gap-8">
-          <SectionHeading
-            className="lg:col-span-7"
-            eyebrow="The Shift"
-            index="01"
-            title={
-              <>
-                Search didn't die. It moved{" "}
-                <span className="text-blue">inside the machine.</span>
-              </>
-            }
-            lead={
-              <>
-                One question in, a few names out. If you're not one of them, you
-                don't exist.
-              </>
-            }
-          />
-          {/* marginal annotation — counterweight, top right */}
-          <div className="mt-8 lg:col-span-4 lg:col-start-9 lg:mt-2">
+          <div className="lg:col-span-5 lg:col-start-8">
             <p className="border-l-2 border-coral pl-4 text-[15.5px] leading-relaxed text-muted-foreground">
               Right now,{" "}
               <span className="font-medium text-coral">the AI is naming your competitors.</span>
@@ -253,7 +237,9 @@ export function VisibilityGap() {
         {/* the consequence, drawn — answer box + then/now flow */}
         <div className="mt-8 grid gap-6 border-t border-border pt-7 lg:mt-10 lg:grid-cols-12">
           <Rise amount={54} className="lg:col-span-6">
-            <AnswerBox />
+            <Tilt max={5} className="h-full overflow-hidden rounded-[var(--r-lg)]">
+              <AnswerBox />
+            </Tilt>
           </Rise>
           <Rise amount={30} className="lg:col-span-6">
             <FlowCompare />

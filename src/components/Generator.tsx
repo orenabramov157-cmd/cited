@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import { motion, animate, AnimatePresence, useReducedMotion } from "framer-motion"
 import { ArrowRight, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Container, Eyebrow, Marker } from "@/components/primitives"
+import { Container } from "@/components/primitives"
 import { Rise } from "@/components/Rise"
 import { TurnstileWidget, type TurnstileHandle } from "@/components/Turnstile"
 import {
@@ -91,33 +91,11 @@ export function Generator() {
   const status = STATUS[state]
 
   return (
-    <section id="build" className="relative border-t border-border py-8 md:py-12">
+    <section id="build" className="relative py-6 md:py-8">
       <Container>
-        <div className="lg:grid lg:grid-cols-12 lg:gap-10">
-          {/* marginal support — stays on paper */}
-          <Rise amount={30} className="lg:col-span-4 lg:pt-3">
-            <div className="flex items-center gap-3.5">
-              <span className="font-mono text-caption tabular-nums text-faint">05</span>
-              <Eyebrow tone="blue">
-                <Marker tone="blue" />
-                Diagnostic · free
-              </Eyebrow>
-            </div>
-            <h2 className="mt-5 font-display text-h2 tracking-[-0.025em]">
-              Sketch your team in{" "}
-              <span className="hl-yellow">30 seconds.</span>
-            </h2>
-            <p className="mt-5 max-w-[38ch] text-[16px] leading-relaxed text-muted-foreground">
-              Business and city in. Your six-agent team out, named for your trade.
-            </p>
-            <p className="mt-6 max-w-[34ch] border-l-2 border-border-strong pl-4 font-mono text-[11px] leading-relaxed text-faint">
-              Instrument v1 · client-side estimate. A live audit runs your real queries
-              across four engines.
-            </p>
-          </Rise>
-
+        <div>
           {/* the instrument — white panel, same language as the rest of the paper */}
-          <Rise amount={50} className="mt-10 lg:col-span-8 lg:mt-0">
+          <Rise amount={50}>
             <div className="overflow-hidden rounded-[var(--r-xl)] border border-border bg-panel shadow-[var(--shadow-panel)]">
               {/* readout header */}
               <div className="flex items-center justify-between border-b border-border px-6 py-3.5 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
