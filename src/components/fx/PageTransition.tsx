@@ -39,12 +39,23 @@ export function PageTransition({
   const reduce = useReducedMotion()
   const advance = useScrollAdvance()
 
-  // remember where we came from to decide which way the world moves
+  // Remember where we came from to decide which way the world moves. The
+  // direction is frozen per route change: re-renders mid-transition (the
+  // scroll-advance context updates constantly) would otherwise recompute
+  // slideDirection(new, new) = forward and flip a backward slide in flight.
   const prevPath = useRef(location.pathname)
-  const dir = slideDirection(prevPath.current, location.pathname)
-  useEffect(() => {
+  const dirRef = useRef(1)
+  if (prevPath.current !== location.pathname) {
+    dirRef.current = slideDirection(prevPath.current, location.pathname)
     prevPath.current = location.pathname
-  }, [location.pathname])
+  }
+  const dir = dirRef.current
+
+  // Reduced motion renders without AnimatePresence, so onExitComplete never
+  // fires; without this, in-app navigation would keep the old scroll position.
+  useEffect(() => {
+    if (reduce) window.scrollTo({ top: 0, behavior: "instant" })
+  }, [location.pathname, reduce])
 
   // Reset scroll only once the outgoing page is gone. Doing it at the start of
   // the exit made the leaving page jump to the top before it left. The

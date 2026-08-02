@@ -293,13 +293,18 @@ export function ScrollAdvance({ children }: { children: ReactNode }) {
     const onKey = (e: KeyboardEvent) => {
       if (locked.current || e.metaKey || e.ctrlKey || e.altKey) return
       const el = document.activeElement as HTMLElement | null
-      const typing =
+      // don't steal keys from form fields, and don't steal Space/Enter
+      // semantics from a focused button or link at the page edge
+      const engaged =
         el &&
         (el.tagName === "INPUT" ||
           el.tagName === "TEXTAREA" ||
           el.tagName === "SELECT" ||
+          el.tagName === "BUTTON" ||
+          el.tagName === "A" ||
+          el.getAttribute("role") === "button" ||
           el.isContentEditable)
-      if (typing) return
+      if (engaged) return
 
       const forwardKey = e.key === "PageDown" || e.key === "ArrowDown" || e.key === " "
       const backKey = e.key === "PageUp" || e.key === "ArrowUp"
