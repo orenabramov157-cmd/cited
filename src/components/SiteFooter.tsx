@@ -5,7 +5,7 @@ import { CONTACT_EMAIL, CONTACT_PHONE, CONTACT_PHONE_DISPLAY } from "@/lib/gener
 
 export function SiteFooter() {
   return (
-    <footer className="border-t-2 border-ink py-9 dark:border-border-strong">
+    <footer className="border-t-2 border-ink pb-24 pt-9 dark:border-border-strong md:pb-9">
       <Container className="flex flex-wrap items-center justify-between gap-4 text-[13px] text-muted-foreground">
         <Link to="/" className="flex items-baseline gap-2.5">
           <span className="inline-block size-[8px] rounded-[1px] bg-blue" aria-hidden />

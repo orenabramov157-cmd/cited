@@ -51,13 +51,13 @@ export function Nav() {
           </Link>
 
           <nav className="flex items-center gap-1 sm:gap-2">
-            <div className="mr-3 hidden items-center gap-6 md:flex">
+            <div className="mr-3 hidden items-center gap-5 lg:flex">
               {PAGES.map((l) => (
                 <NavLink
                   key={l.to}
                   to={l.to}
                   className={({ isActive }) =>
-                    "group flex items-baseline gap-1.5 py-1 text-[14px] font-medium transition-colors duration-200 hover:text-foreground focus-visible:text-foreground " +
+                    "group flex items-baseline gap-1.5 whitespace-nowrap py-1 text-[14px] font-medium transition-colors duration-200 hover:text-foreground focus-visible:text-foreground " +
                     (isActive ? "text-foreground" : "text-muted-foreground")
                   }
                 >
@@ -93,7 +93,7 @@ export function Nav() {
             */}
             <a
               href={`tel:${CONTACT_PHONE}`}
-              className="hidden items-center gap-1.5 px-2 font-mono text-[11px] tabular-nums text-muted-foreground transition-colors hover:text-blue lg:flex"
+              className="hidden items-center gap-1.5 whitespace-nowrap px-2 font-mono text-[11px] tabular-nums text-muted-foreground transition-colors hover:text-blue xl:flex"
             >
               <Phone size={12} aria-hidden />
               {CONTACT_PHONE_DISPLAY}
@@ -101,13 +101,15 @@ export function Nav() {
             <ThemeToggle />
             <Link
               to="/demo"
-              className="ml-1 hidden text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground sm:inline-block"
+              className="ml-1 hidden whitespace-nowrap text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground sm:inline-block"
             >
               Book a call
             </Link>
             <Magnetic strength={5} className="ml-1 inline-block">
               <Button asChild size="sm">
-                <Link to="/demo">Get your report</Link>
+                <Link to="/demo" className="whitespace-nowrap">
+                  Get your report
+                </Link>
               </Button>
             </Magnetic>
           </nav>
