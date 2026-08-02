@@ -8,11 +8,28 @@ import { Rise } from "@/components/Rise"
  * The method itself is deliberately described at category level only.
  */
 
+/**
+ * Before cells reflect the real 2026-08-02 baseline run (first pass, dated
+ * screenshots in the evidence vault). "logging" = that query's coverage is
+ * still being captured. After cells stay queued until the re-measure.
+ */
 const ROWS = [
-  { q: "best jewelers in Dallas", engines: "GPT · PPX · GEM · CLD" },
-  { q: "where to buy an engagement ring in Dallas", engines: "GPT · PPX · GEM · CLD" },
-  { q: "best custom jeweler in Dallas", engines: "GPT · PPX · GEM · CLD" },
-]
+  {
+    q: "best jewelers in Dallas",
+    engines: "GPT · PPX · GEM · CLD",
+    before: { text: "✗ absent · 8/2", tone: "coral" },
+  },
+  {
+    q: "where to buy an engagement ring in Dallas",
+    engines: "GPT · PPX · GEM · CLD",
+    before: { text: "✗ absent · 8/2", tone: "coral" },
+  },
+  {
+    q: "best custom jeweler in Dallas",
+    engines: "GPT · PPX · GEM · CLD",
+    before: { text: "· logging", tone: "faint" },
+  },
+] as const
 
 export function Proof() {
   return (
@@ -52,7 +69,14 @@ export function Proof() {
                     <span className="font-mono text-[10.5px] text-muted-foreground">
                       {r.engines}
                     </span>
-                    <span className="font-mono text-[12px] text-faint">· logging</span>
+                    <span
+                      className={
+                        "font-mono text-[12px] " +
+                        (r.before.tone === "coral" ? "font-medium text-coral" : "text-faint")
+                      }
+                    >
+                      {r.before.text}
+                    </span>
                     <span className="font-mono text-[12px] text-faint">· queued</span>
                   </div>
                 ))}
@@ -62,7 +86,7 @@ export function Proof() {
                     <Camera size={11} /> dated screenshots
                   </span>
                   <span className="inline-flex items-center gap-1.5">
-                    <Repeat2 size={11} /> every query run 3×. A result counts only if it repeats
+                    <Repeat2 size={11} /> a “named” only counts once it repeats across runs
                   </span>
                 </div>
               </div>
