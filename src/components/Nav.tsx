@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react"
 import { motion, useReducedMotion } from "framer-motion"
 import { Link, NavLink } from "react-router-dom"
+import { Phone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { Container } from "@/components/primitives"
 import { Magnetic } from "@/components/fx/Magnetic"
 import { EASE_REVEAL } from "@/lib/motion"
 import { TRACK } from "@/lib/route-order"
+import { CONTACT_PHONE, CONTACT_PHONE_DISPLAY } from "@/lib/generator"
 
 /** The nav shows every stop on the track except home, which is the wordmark. */
 export const PAGES = TRACK.filter((s) => s.to !== "/")
@@ -83,8 +85,27 @@ export function Nav() {
                 </NavLink>
               ))}
             </div>
+            {/*
+              The pair. Eleven of the fourteen comparable sites we measured put
+              a low-commitment and a high-commitment action side by side, and
+              never hide either one on mobile: a phone visitor who cannot reach
+              the booking path is simply a lost visitor.
+            */}
+            <a
+              href={`tel:${CONTACT_PHONE}`}
+              className="hidden items-center gap-1.5 px-2 font-mono text-[11px] tabular-nums text-muted-foreground transition-colors hover:text-blue lg:flex"
+            >
+              <Phone size={12} aria-hidden />
+              {CONTACT_PHONE_DISPLAY}
+            </a>
             <ThemeToggle />
-            <Magnetic strength={5} className="ml-1 hidden sm:inline-block">
+            <Link
+              to="/demo"
+              className="ml-1 hidden text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground sm:inline-block"
+            >
+              Book a call
+            </Link>
+            <Magnetic strength={5} className="ml-1 inline-block">
               <Button asChild size="sm">
                 <Link to="/demo">Get your report</Link>
               </Button>

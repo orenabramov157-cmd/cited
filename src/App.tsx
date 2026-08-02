@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react"
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import { Nav } from "@/components/Nav"
 import { SiteFooter } from "@/components/SiteFooter"
+import { ConversionBand, MobileActionBar } from "@/components/ConversionBand"
 import { PageTransition } from "@/components/fx/PageTransition"
 import { ScrollAdvance } from "@/components/fx/ScrollAdvance"
 import { LegalPage } from "@/components/LegalPage"
@@ -46,7 +47,9 @@ function Shell() {
           )}
         </PageTransition>
       </main>
+      <ConversionBand />
       <SiteFooter />
+      <MobileActionBar />
     </ScrollAdvance>
   )
 }

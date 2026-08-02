@@ -144,11 +144,22 @@ export default function Home() {
                     </Link>
                   </Button>
                 </Magnetic>
+                {/*
+                  The homepage previously offered no route to the demo at all.
+                  Every comparable site pairs the self-serve action with a
+                  human one right here, in the hero, where intent is highest.
+                */}
                 <Magnetic strength={7}>
                   <Button asChild size="lg" variant="outline">
-                    <Link to="/shift">Why now</Link>
+                    <Link to="/demo">Get your report</Link>
                   </Button>
                 </Magnetic>
+                <Link
+                  to="/shift"
+                  className="text-[14px] font-medium text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+                >
+                  Why now
+                </Link>
               </motion.div>
             </motion.div>
 

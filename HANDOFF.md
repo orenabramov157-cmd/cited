@@ -18,8 +18,11 @@ in `src/components/fx/`. Do not reintroduce one-page anchor scrolling.
 ## Non-negotiable constraints
 
 1. **Work on a branch, never main.** Name it `polish/<something>`.
-2. **Do not touch:** `functions/` (hardened API), `verify.mjs` (test harness),
-   `wrangler.toml`, `KEY-SETUP.md`, `FINDINGS.md`, anything in `.dev.vars`.
+2. **Do not touch:** `KEY-SETUP.md`, `FINDINGS.md`, anything in `.dev.vars`.
+   `functions/`, `wrangler.toml` and `verify.mjs` were opened up on 2026-08-02
+   for the security pass at the owner's explicit request; treat them as
+   editable but read `SECURITY.md` before changing anything in them, and never
+   weaken a layer described there without saying so out loud.
 3. **Locked palette. Never introduce:** purple/violet/lavender/magenta,
    gold/brown, dark full-bleed sections (the site is a continuous light
    paper system; navy was tried and rejected). Tokens live in
@@ -43,6 +46,29 @@ in `src/components/fx/`. Do not reintroduce one-page anchor scrolling.
    in-page reveals. Everything instant, and every canvas unmounted entirely,
    under prefers-reduced-motion. Do NOT add motion by adding scroll length:
    pages are capped at ~3200px and the harness fails if one grows past it.
+9. **The handoff must never show an empty screen, and must never freeze.**
+   These are measured contracts, not opinions, and `verify.mjs` enforces them.
+   The rules, and the bugs behind each:
+   - The edge sign is not destroyed at commit. It persists and its rule
+     switches from tracking the gesture to tracking the journey. It once died
+     19ms after commit, leaving nothing on screen for roughly half a second.
+   - The covered moment carries the destination name (`SeamTitle`). It does
+     not ride the covering band, because a centred thing on a sliding band
+     leaves the viewport in about fifty milliseconds.
+   - The input lock is a fixed duration and nothing may extend it. An earlier
+     version held the lock until input went quiet, and refreshed "quiet" on
+     every event, so continuous scrolling froze the page for over six seconds.
+   - Skipping stops is prevented by a spent-gesture flag, NOT by holding the
+     lock. The flag clears on a real pause in input or once the new page has
+     actually been scrolled, so the wheel is never ignored at a page edge.
+   - Page Down, Page Up and the arrows advance the track from the edges, and
+     must keep doing nothing while a form field has focus.
+10. **Every page ends with a way to act.** `ConversionBand` sits above the
+   footer on every page except `/demo` and the legal pages, `MobileActionBar`
+   carries the same action on phones, and the phone number is published in the
+   nav, the footer and both of those. Fourteen comparable sites were measured:
+   the median homepage offers several routes to a demo, and this one offered
+   none before 2026-08-02. Do not quietly reduce that coverage.
    **A trailing cursor ring was built and then removed at the owner's request
    (2026-07-31). Do not reintroduce it.** What he likes is fields that bend
    around the pointer, not a dot following it.
