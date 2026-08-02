@@ -1,0 +1,27 @@
+# Security headers, applied by Cloudflare Pages to every response.
+# https://developers.cloudflare.com/pages/configuration/headers
+#
+# The content policy is deliberately tight: this site loads no third-party
+# scripts, no font CDN and no analytics, so everything is same-origin except
+# the Turnstile widget. 'unsafe-inline' is required in two places and only two:
+# the theme-detection script in index.html, which must run before first paint
+# to avoid a flash of the wrong theme, and the inline style attributes that
+# Framer Motion writes on every animated element.
+
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()
+  Cross-Origin-Opener-Policy: same-origin
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-XSS-Protection: 0
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests
+
+# The generator response is per-visitor and must never be held in a shared cache.
+/api/*
+  Cache-Control: no-store
+
+# Hashed build assets are immutable by construction.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
