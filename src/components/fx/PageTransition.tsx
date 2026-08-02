@@ -10,7 +10,7 @@ import {
 } from "framer-motion"
 import { useLocation } from "react-router-dom"
 import { EASE_REVEAL } from "@/lib/motion"
-import { slideDirection } from "@/lib/route-order"
+import { slideDirection, trackIndex, TRACK } from "@/lib/route-order"
 import { useScrollAdvance } from "@/components/fx/ScrollAdvance"
 
 /**
@@ -68,7 +68,7 @@ export function PageTransition({
           initial="enter"
           animate="center"
           exit="leave"
-          transition={{ duration: 0.58, ease: EASE_REVEAL }}
+          transition={{ duration: 0.34, ease: EASE_REVEAL }}
         >
           {/* the lean lives on an inner layer so it never fights the slide */}
           <motion.div style={{ x: lean, scale: leanScale }}>{children(location)}</motion.div>
@@ -87,20 +87,57 @@ export function PageTransition({
           initial="parked"
           animate="parked"
           exit="cover"
-          transition={{ duration: 0.42, ease: EASE_REVEAL }}
+          transition={{ duration: 0.26, ease: EASE_REVEAL }}
           className="pointer-events-none fixed inset-0 z-[55] border-blue bg-canvas"
         />
+        {/*
+          The arriving band is not blank. It carries the name of the stop you
+          are landing on, so the covered moment reads as a title card rather
+          than as a page that failed to load.
+        */}
         <motion.span
           aria-hidden
           custom={dir}
           variants={UNCOVER}
           initial="covering"
           animate="gone"
-          transition={{ duration: 0.5, ease: EASE_REVEAL }}
+          transition={{ duration: 0.3, ease: EASE_REVEAL }}
           className="pointer-events-none fixed inset-0 z-[55] border-blue bg-canvas"
         />
+        {/*
+          The title does not ride the band. If it did it would leave the
+          viewport as soon as the band was half gone, which measured at fifty
+          milliseconds of screen time. It sits still and fades on its own clock
+          instead, so the covered moment always has something to read.
+        */}
+        <SeamTitle pathname={location.pathname} />
       </motion.div>
     </AnimatePresence>
+  )
+}
+
+/**
+ * The stop you are arriving at, set on the covering band. Off-track pages have
+ * no number, so they get their own quiet treatment rather than a fake one.
+ */
+function SeamTitle({ pathname }: { pathname: string }) {
+  const i = trackIndex(pathname)
+  if (i < 0) return null
+  const stop = TRACK[i]
+  return (
+    <motion.span
+      aria-hidden
+      data-seam="title"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: [0, 1, 1, 0], y: [12, 0, 0, -6] }}
+      transition={{ duration: 0.46, times: [0, 0.22, 0.62, 1], ease: EASE_REVEAL }}
+      className="pointer-events-none fixed inset-0 z-[56] flex flex-col items-center justify-center gap-2"
+    >
+      <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-faint">
+        {stop.n} / {String(TRACK.length - 1).padStart(2, "0")}
+      </span>
+      <span className="font-display text-[clamp(2rem,5vw,3.4rem)] leading-none">{stop.label}</span>
+    </motion.span>
   )
 }
 

@@ -154,7 +154,7 @@ const browser = await chromium.launch()
   await page.mouse.wheel(0, 120)
   await page.waitForTimeout(250)
   const hint = await page.evaluate(() => {
-    const el = document.querySelector(".fixed.z-\\[58\\]")
+    const el = document.querySelector('[data-seam="pill"]')
     return el ? el.textContent.replace(/\s+/g, " ").trim() : null
   })
   ok("scroll advance: edge hint names the next stop", !!hint && /The Team/.test(hint), hint)
@@ -181,20 +181,40 @@ const browser = await chromium.launch()
   const back = await page.evaluate(() => window.location.pathname)
   ok("scroll advance: reverses back up the track", back === "/shift", back)
 
-  // one flick must move exactly one page: the tail of a hard scroll used to
-  // arrive after the lock lifted and skip a second page
+  /**
+   * Travel must never skip a stop.
+   *
+   * The old rule here was "one flick moves exactly one page", which turned out
+   * to be the wrong contract: enforcing it meant ignoring a live scroll wheel
+   * at the bottom of a page, which is the dead feeling the whole mechanism is
+   * supposed to prevent. The real invariant is that you always pass through
+   * every stop in order, however hard you scroll. So: scroll hard, and check
+   * the path history is contiguous along the track.
+   */
   await page.goto(BASE + "/shift", { waitUntil: "networkidle" })
   await page.waitForTimeout(500)
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
   await page.waitForTimeout(350)
   await page.mouse.move(640, 500)
+  const seen = []
+  const record = async () => {
+    const at = await page.evaluate(() => location.pathname)
+    if (seen.at(-1) !== at) seen.push(at)
+  }
+  await record()
   for (let i = 0; i < 16; i++) {
     await page.mouse.wheel(0, 220)
+    await record()
     await page.waitForTimeout(40)
   }
   await page.waitForTimeout(1600)
-  const oneStep = await page.evaluate(() => window.location.pathname)
-  ok("scroll advance: one flick advances exactly one page", oneStep === "/team", oneStep)
+  await record()
+  const ORDER = ["/", "/shift", "/team", "/method", "/proof", "/pricing", "/try"]
+  const contiguous = seen.every((path, i) => {
+    if (i === 0) return true
+    return ORDER.indexOf(path) === ORDER.indexOf(seen[i - 1]) + 1
+  })
+  ok("scroll advance: hard scrolling never skips a stop", contiguous, seen.join(" → "))
 
   // the last stop must not strand you or fire into nothing
   await page.goto(BASE + "/try", { waitUntil: "networkidle" })
@@ -623,6 +643,162 @@ for (const [w, h, label] of [[768, 1024, "tablet"], [375, 812, "mobile"]]) {
     ok(`${label} ${route}: no horizontal overflow`, !overflow)
     await page.screenshot({ path: `${OUT}/13-${label}-${name}.png`, fullPage: true })
   }
+  await page.close()
+}
+
+// ---------- the handoff never leaves the screen empty, and never freezes ----------
+// This whole block exists because of one specific complaint: the pause between
+// pages showed nothing, so it read as a stall rather than a transition. Each
+// check below is a number that complaint turned into.
+{
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
+  await page.addInitScript(() => {
+    window.onScreen = (el) => {
+      if (!el) return false
+      const r = el.getBoundingClientRect()
+      if (r.width === 0 || r.height === 0) return false
+      let o = 1
+      for (let n = el; n && n instanceof Element; n = n.parentElement) {
+        o *= parseFloat(getComputedStyle(n).opacity || "1")
+      }
+      return o >= 0.05 && r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth
+    }
+  })
+  await page.goto(BASE + "/", { waitUntil: "networkidle" })
+  await page.waitForTimeout(1200)
+  await page.mouse.move(720, 450)
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+  await page.waitForTimeout(400)
+
+  const frames = []
+  const wheels = []
+  const started = Date.now()
+  const sampler = (async () => {
+    while (Date.now() - started < 3200) {
+      frames.push(
+        await page.evaluate(() => ({
+          t: performance.now(),
+          path: location.pathname,
+          y: window.scrollY,
+          h1: window.onScreen(document.querySelector("h1")),
+          pill: window.onScreen(document.querySelector('[data-seam="pill"]')),
+          title: window.onScreen(document.querySelector('[data-seam="title"]')),
+        }))
+      )
+      await new Promise((r) => setTimeout(r, 25))
+    }
+  })()
+  const pusher = (async () => {
+    for (let i = 0; i < 30; i++) {
+      wheels.push(await page.evaluate(() => performance.now()))
+      await page.mouse.wheel(0, 120)
+      await new Promise((r) => setTimeout(r, 40))
+    }
+  })()
+  await Promise.all([sampler, pusher])
+
+  const navIdx = frames.findIndex((f) => f.path !== "/")
+  ok("handoff: continuous scrolling still travels", navIdx >= 0, frames.at(-1).path)
+
+  // Scoped to the transition itself. What the page looks like two seconds
+  // after arriving is a different question, asked separately below.
+  const navT = navIdx >= 0 ? frames[navIdx].t : 0
+  const win = navIdx >= 0 ? frames.filter((f) => f.t >= navT - 100 && f.t <= navT + 950) : []
+  const blank = win.filter((f) => !f.h1 && !f.pill && !f.title).length * 25
+  ok("handoff: the screen is never empty during travel", blank === 0, `${blank}ms blank`)
+
+  // ...and the new page must become readable promptly once it has landed.
+  const after = frames.filter((f) => f.t > navT)
+  const firstH1 = after.find((f) => f.h1)
+  ok(
+    "handoff: the arriving headline reads within a second",
+    !!firstH1 && firstH1.t - navT < 1000,
+    firstH1 ? `${Math.round(firstH1.t - navT)}ms` : "never"
+  )
+
+  const pill = win.filter((f) => f.pill).length * 25
+  ok("handoff: the sign survives the commit", pill > 400, `${pill}ms visible`)
+
+  const titled = win.filter((f) => f.title).length * 25
+  ok("handoff: the covered moment names the destination", titled > 80, `${titled}ms`)
+
+  // The freeze: input arriving with nothing moving. Only counted while the
+  // user is actually pushing, since stillness without input is just a page.
+  const pushed = (t) => wheels.some((w) => t - w >= 0 && t - w < 140)
+  let frozen = 0
+  let runStart = null
+  for (let i = 1; i < frames.length; i++) {
+    const still = frames[i].y === frames[i - 1].y && frames[i].path === frames[i - 1].path
+    if (still && pushed(frames[i].t)) runStart ??= frames[i - 1].t
+    else {
+      if (runStart) frozen = Math.max(frozen, frames[i].t - runStart)
+      runStart = null
+    }
+  }
+  ok("handoff: scrolling is never frozen for long", frozen < 900, `worst ${Math.round(frozen)}ms`)
+  await page.close()
+}
+
+// ---------- the track is reachable without a mouse ----------
+{
+  const page = await browser.newPage({ viewport: { width: 1280, height: 860 } })
+  await page.goto(BASE + "/shift", { waitUntil: "networkidle" })
+  await page.waitForTimeout(900)
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+  await page.waitForTimeout(400)
+  await page.keyboard.press("PageDown")
+  await page.waitForTimeout(1200)
+  const fwd = await page.evaluate(() => location.pathname)
+  ok("keyboard: Page Down advances the track from the bottom", fwd === "/team", fwd)
+
+  await page.evaluate(() => window.scrollTo(0, 0))
+  await page.waitForTimeout(400)
+  await page.keyboard.press("PageUp")
+  await page.waitForTimeout(1200)
+  const back = await page.evaluate(() => location.pathname)
+  ok("keyboard: Page Up walks back from the top", back === "/shift", back)
+
+  // typing in a field must never be stolen by the gesture
+  await page.goto(BASE + "/demo", { waitUntil: "networkidle" })
+  await page.waitForTimeout(900)
+  const input = await page.$("input")
+  if (input) {
+    await input.click()
+    await page.keyboard.type("Test Business")
+    await page.keyboard.press("ArrowDown")
+    await page.waitForTimeout(500)
+    const stayed = await page.evaluate(() => location.pathname)
+    ok("keyboard: arrows in a form field do not navigate", stayed === "/demo", stayed)
+  }
+  await page.close()
+}
+
+// ---------- a visitor can always reach a human ----------
+{
+  const page = await browser.newPage({ viewport: { width: 1280, height: 860 } })
+  for (const route of ["/", "/shift", "/pricing"]) {
+    await page.goto(BASE + route, { waitUntil: "networkidle" })
+    await page.waitForTimeout(1200)
+    const counts = await page.evaluate(() => ({
+      demo: document.querySelectorAll('a[href="/demo"]').length,
+      tel: document.querySelectorAll('a[href^="tel:"]').length,
+    }))
+    ok(`${route}: offers a route to the demo`, counts.demo >= 2, `${counts.demo} links`)
+    ok(`${route}: publishes a phone number`, counts.tel >= 1, `${counts.tel} links`)
+  }
+
+  // the mobile path is the one that used to be missing entirely
+  const phone = await browser.newPage({ viewport: { width: 375, height: 812 } })
+  await phone.goto(BASE + "/", { waitUntil: "networkidle" })
+  await phone.waitForTimeout(1200)
+  const reachable = await phone.evaluate(() =>
+    [...document.querySelectorAll('a[href="/demo"]')].some((a) => {
+      const r = a.getBoundingClientRect()
+      return r.width > 0 && r.height > 0 && getComputedStyle(a).visibility !== "hidden"
+    })
+  )
+  ok("mobile: the demo is reachable on a phone", reachable)
+  await phone.close()
   await page.close()
 }
 
