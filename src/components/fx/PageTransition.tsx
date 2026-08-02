@@ -47,8 +47,18 @@ export function PageTransition({
   }, [location.pathname])
 
   // Reset scroll only once the outgoing page is gone. Doing it at the start of
-  // the exit made the leaving page jump to the top before it left.
-  const onEnter = () => window.scrollTo({ top: 0, behavior: "auto" })
+  // the exit made the leaving page jump to the top before it left. The
+  // .is-handoff overflow lock freezes programmatic scrolling too, so lift it
+  // for exactly this one call and put it straight back.
+  const onEnter = () => {
+    const el = document.documentElement
+    const locked = el.classList.contains("is-handoff")
+    if (locked) el.classList.remove("is-handoff")
+    // "instant", not "auto": the global scroll-behavior:smooth would animate
+    // this, and re-applying the overflow lock freezes that animation mid-way
+    window.scrollTo({ top: 0, behavior: "instant" })
+    if (locked) el.classList.add("is-handoff")
+  }
 
   const fallback = useMotionValue(0)
   const pull = useSpring(advance?.pull ?? fallback, { stiffness: 380, damping: 32 })

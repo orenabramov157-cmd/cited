@@ -99,6 +99,9 @@ export function PointerField({
     const frame = () => {
       raf = requestAnimationFrame(frame)
       if (!visible) return
+      // during a page handoff every frame belongs to the transition, not
+      // the ambience; the class is set by ScrollAdvance for the duration
+      if (document.documentElement.classList.contains("is-handoff")) return
       t += 0.006
       ctx.clearRect(0, 0, w, h)
 

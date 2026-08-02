@@ -302,19 +302,30 @@ const browser = await chromium.launch()
   await page.close()
 }
 
-// ---------- pricing: prices visible, tiers legible, one clear recommendation ----------
+// ---------- pricing: custom quotes, no invented numbers, one recommendation ----------
 {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
   await page.goto(BASE + "/pricing", { waitUntil: "networkidle" })
   await page.waitForTimeout(700)
 
-  const prices = await page.$$eval("main .tnum", (els) =>
-    els.map((e) => e.textContent.trim()).filter((t) => t.startsWith("$"))
+  // pricing is quoted per business: no fixed dollar figures anywhere
+  const dollars = await page.evaluate(
+    () => (document.querySelector("main")?.innerText ?? "").match(/\$\s?\d/g)?.length ?? 0
   )
-  ok("pricing: all three prices are shown, not hidden", prices.length === 3, prices.join(" "))
+  ok("pricing: no fixed dollar figures, quotes are custom", dollars === 0, `found ${dollars}`)
+  const quoted = await page.evaluate(() =>
+    /priced to you/i.test(document.querySelector("main")?.innerText ?? "")
+  )
+  ok("pricing: custom-quote language is present", quoted)
+
+  // the 4-engine method is a flat fact, never a tier upsell
+  const enginesText = await page.evaluate(() => document.querySelector("main")?.innerText ?? "")
+  const fakeEngines = /\b(3|5|7\+?)\s+engines/i.test(enginesText)
+  ok("pricing: no invented engine counts", !fakeEngines)
+  ok("pricing: all four engines stated as the method", /all four engines/i.test(enginesText))
 
   const badges = await page.$$eval("main span", (els) =>
-    els.filter((e) => /most take this/i.test(e.textContent)).length
+    els.filter((e) => /^recommended$/i.test(e.textContent.trim())).length
   )
   ok("pricing: exactly one tier is recommended", badges === 1, `got ${badges}`)
 
@@ -323,18 +334,19 @@ const browser = await chromium.launch()
     await page.$$eval("main ul li", (els) =>
       els.map((e) => Number(getComputedStyle(e).opacity.slice(0, 4)))
     )
-  await page.mouse.move(240, 520)
+  await page.hover("main .grid > div:nth-child(1)")
   await page.waitForTimeout(600)
   const a = await dim()
-  await page.mouse.move(1040, 520)
+  await page.hover("main .grid > div:nth-child(3)")
   await page.waitForTimeout(600)
   const b = await dim()
   ok("pricing: hover moves the emphasis between tiers", JSON.stringify(a) !== JSON.stringify(b))
 
   const setup = await page.evaluate(() => /setup/i.test(document.body.innerText))
-  ok("pricing: the setup fee is stated up front", setup)
-  const term = await page.evaluate(() => /minimum/i.test(document.body.innerText))
-  ok("pricing: the minimum term is stated up front", term)
+  ok("pricing: the setup + retainer shape is stated up front", setup)
+
+  const demoCtas = await page.$$eval('main a[href="/demo"]', (els) => els.length)
+  ok("pricing: every tier CTA points at the report form", demoCtas >= 3, `got ${demoCtas}`)
 
   await page.click('main a[href="/demo"]')
   await page.waitForTimeout(900)
@@ -343,7 +355,7 @@ const browser = await chromium.launch()
   await page.close()
 }
 
-// ---------- demo: four fields, validated, and it actually sends ----------
+// ---------- demo: the onboarding questionnaire, validated, and it sends ----------
 {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
   const errors = []
@@ -351,41 +363,56 @@ const browser = await chromium.launch()
   await page.goto(BASE + "/demo", { waitUntil: "networkidle" })
   await page.waitForTimeout(600)
 
-  const fields = await page.$$eval("#report input", (els) => els.length)
-  ok("demo: exactly four fields", fields === 4, `got ${fields}`)
+  // pricing is quoted from this form, so it asks who they are: 6 inputs,
+  // 2 selects (team size, locations), 1 free-text notes area
+  const controls = await page.$$eval("#report input, #report select, #report textarea", (els) =>
+    els.map((e) => e.tagName.toLowerCase())
+  )
+  ok(
+    "demo: full questionnaire present (6 inputs, 2 selects, 1 textarea)",
+    controls.filter((t) => t === "input").length === 6 &&
+      controls.filter((t) => t === "select").length === 2 &&
+      controls.filter((t) => t === "textarea").length === 1,
+    controls.join(",")
+  )
 
   // empty submit must explain itself rather than doing nothing
   await page.click('#report button[type="submit"]')
   await page.waitForTimeout(400)
   const emptyErr = await page.textContent('#report [role="alert"]').catch(() => null)
-  ok("demo: empty submit explains itself", !!emptyErr, emptyErr)
+  ok("demo: empty submit explains itself", !!emptyErr && /required/i.test(emptyErr), emptyErr)
 
-  // a bad email must be caught before anything is sent
+  // a bad email must be caught even when everything else is complete
   await page.fill("#biz", "Abramov Fine Jewelry")
+  await page.fill("#category", "custom jewelry")
   await page.fill("#city", "Dallas")
+  await page.fill("#site", "abramovjewelry.com")
+  await page.selectOption("#people", "2-5")
+  await page.selectOption("#locations", "1")
   await page.fill("#email", "not-an-email")
   await page.click('#report button[type="submit"]')
   await page.waitForTimeout(400)
   const badEmail = await page.textContent('#report [role="alert"]').catch(() => null)
   ok("demo: invalid email is rejected", !!badEmail && /email/i.test(badEmail), badEmail)
 
-  // progress rule tracks how much of the form is done
-  await page.fill("#site", "abramovjewelry.com")
+  // progress rule tracks the required answers
   await page.fill("#email", "oren@abramovjewelry.com")
   await page.waitForTimeout(500)
   const count = await page.evaluate(() =>
     [...document.querySelectorAll("#report span")]
       .map((e) => e.textContent.trim())
-      .find((t) => /^\d\/4$/.test(t))
+      .find((t) => /^\d\/7$/.test(t))
   )
-  ok("demo: field counter reaches 4/4", count === "4/4", count)
+  ok("demo: required counter reaches 7/7", count === "7/7", count)
 
-  const href = await page.evaluate(() => {
-    // the submit builds a real mailto with every answer in it
-    const f = document.querySelector("#report")
-    return f ? true : false
+  // optional answers stay optional: resubmitting with them empty succeeds
+  await page.click('#report button[type="submit"]')
+  await page.waitForTimeout(500)
+  const stillValid = await page.evaluate(() => {
+    const alert = document.querySelector('#report [role="alert"]')
+    return !alert || !alert.textContent.trim()
   })
-  ok("demo: form is present and wired", href)
+  ok("demo: optional fields are not required", stillValid)
   ok("demo: no page errors", errors.length === 0, errors.join(" | ").slice(0, 120))
   await page.close()
 }

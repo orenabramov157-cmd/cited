@@ -14,39 +14,56 @@ const DELIVERS = [
   ["01", "The questions", "The exact prompts your buyers ask before they choose."],
   ["02", "The answers", "Who the machines name today, verbatim and dated."],
   ["03", "The gap", "Where you are missing from the lists those answers come from."],
+  ["04", "Your number", "What fixing it costs for your size, market, and category. No menu pricing."],
 ] as const
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
+const PEOPLE = ["Just me", "2-5", "6-20", "21-50", "50+"] as const
+const LOCATIONS = ["1", "2-5", "6+"] as const
+
+/**
+ * The onboarding questionnaire. Pricing is quoted per business, so this form
+ * is how a quote becomes possible: who they are, what they sell, how big.
+ * Seven required answers, two optional. Every answer lands in the email.
+ */
 export default function Demo() {
   const [biz, setBiz] = useState("")
+  const [category, setCategory] = useState("")
   const [city, setCity] = useState("")
   const [site, setSite] = useState("")
   const [email, setEmail] = useState("")
+  const [people, setPeople] = useState("")
+  const [locations, setLocations] = useState("")
+  const [ticket, setTicket] = useState("")
+  const [notes, setNotes] = useState("")
   const [sent, setSent] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const filled = [biz, city, site, email].filter((v) => v.trim().length > 0).length
+  const required = [biz, category, city, site, email, people, locations]
+  const filled = required.filter((v) => v.trim().length > 0).length
 
   const mailto = useMemo(() => {
     const subject = encodeURIComponent(`AI visibility report: ${biz.trim() || "my business"}`)
-    const body = encodeURIComponent(
-      [
-        `Business: ${biz.trim()}`,
-        `City: ${city.trim()}`,
-        `Website: ${site.trim()}`,
-        `Email: ${email.trim()}`,
-        "",
-        "Please run my AI visibility report.",
-      ].join("\n")
-    )
-    return `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`
-  }, [biz, city, site, email])
+    const lines = [
+      `Business: ${biz.trim()}`,
+      `What they do: ${category.trim()}`,
+      `City: ${city.trim()}`,
+      `Website: ${site.trim()}`,
+      `Email: ${email.trim()}`,
+      `Team size: ${people}`,
+      `Locations: ${locations}`,
+    ]
+    if (ticket.trim()) lines.push(`Average sale: ${ticket.trim()}`)
+    if (notes.trim()) lines.push(`Notes: ${notes.trim()}`)
+    lines.push("", "Please run my AI visibility report and send my number.")
+    return `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${encodeURIComponent(lines.join("\n"))}`
+  }, [biz, category, city, site, email, people, locations, ticket, notes])
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!biz.trim() || !city.trim()) {
-      setError("Business and city, at minimum.")
+    if (filled < required.length) {
+      setError("Everything except average sale and notes is required. It is how we price you.")
       return
     }
     if (!EMAIL_RE.test(email.trim())) {
@@ -72,14 +89,14 @@ export default function Demo() {
               </MaskLine>
             </>
           }
-          lead="Four fields. A real report, read by a human, back within a day."
+          lead="Two minutes, no call. A real report, read by a human, back within a day, with your number attached."
         />
       </Container>
 
       <Block>
         <Container>
           <div className="grid gap-8 lg:grid-cols-[1fr_0.85fr] lg:gap-12">
-            {/* the form */}
+            {/* the questionnaire */}
             <div>
               <Tilt max={4} className="h-full">
                 <form
@@ -97,14 +114,14 @@ export default function Demo() {
                       Free report
                     </Eyebrow>
                     <span className="font-mono text-[10px] tabular-nums text-faint">
-                      {filled}/4
+                      {filled}/{required.length}
                     </span>
                   </div>
 
                   {/* the rule fills as the form does: progress you can feel */}
                   <div className="mt-4 h-[2px] w-full overflow-hidden bg-border">
                     <motion.div
-                      animate={{ scaleX: filled / 4 }}
+                      animate={{ scaleX: filled / required.length }}
                       initial={{ scaleX: 0 }}
                       transition={{ duration: 0.45, ease: EASE_REVEAL }}
                       style={{ originX: 0 }}
@@ -122,6 +139,14 @@ export default function Demo() {
                       max={MAX_BUSINESS}
                     />
                     <Field
+                      id="category"
+                      label="What you do"
+                      placeholder="custom jewelry, med spa, law firm"
+                      value={category}
+                      onChange={setCategory}
+                      max={80}
+                    />
+                    <Field
                       id="city"
                       label="City"
                       placeholder="Dallas"
@@ -137,6 +162,20 @@ export default function Demo() {
                       onChange={setSite}
                       max={160}
                     />
+                    <Select
+                      id="people"
+                      label="Team size"
+                      value={people}
+                      onChange={setPeople}
+                      options={PEOPLE}
+                    />
+                    <Select
+                      id="locations"
+                      label="Locations"
+                      value={locations}
+                      onChange={setLocations}
+                      options={LOCATIONS}
+                    />
                     <Field
                       id="email"
                       label="Email"
@@ -146,6 +185,28 @@ export default function Demo() {
                       onChange={setEmail}
                       max={160}
                     />
+                    <Field
+                      id="ticket"
+                      label="Average sale (optional)"
+                      placeholder="$3,000"
+                      value={ticket}
+                      onChange={setTicket}
+                      max={40}
+                    />
+                    <label htmlFor="notes" className="block sm:col-span-2">
+                      <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-faint">
+                        Anything we should know (optional)
+                      </span>
+                      <textarea
+                        id="notes"
+                        value={notes}
+                        maxLength={400}
+                        rows={2}
+                        placeholder="A competitor you keep losing to, a launch date, a second market"
+                        onChange={(e) => setNotes(e.target.value.slice(0, 400))}
+                        className="mt-2 w-full resize-none border-b border-border-strong bg-transparent pb-2 text-[15px] outline-none transition-colors duration-200 placeholder:text-faint/70 focus:border-blue"
+                      />
+                    </label>
                   </div>
 
                   <AnimatePresence>
@@ -210,8 +271,9 @@ export default function Demo() {
                 </motion.div>
               ))}
               <p className="border-l-2 border-blue pl-4 text-[14px] leading-relaxed text-muted-foreground">
-                <span className="font-medium text-foreground">The report is free.</span> The
-                fix is not, and we will tell you what it costs before you ask.
+                <span className="font-medium text-foreground">The report is free.</span>{" "}
+                The fix is priced to your answers above, and we tell you the number
+                before you ask.
               </p>
             </motion.div>
           </div>
@@ -252,6 +314,46 @@ function Field({
         onChange={(e) => onChange(e.target.value.slice(0, max))}
         className="mt-2 w-full border-b border-border-strong bg-transparent pb-2 text-[15px] outline-none transition-colors duration-200 placeholder:text-faint/70 focus:border-blue"
       />
+    </label>
+  )
+}
+
+function Select({
+  id,
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  id: string
+  label: string
+  value: string
+  onChange: (v: string) => void
+  options: readonly string[]
+}) {
+  return (
+    <label htmlFor={id} className="block">
+      <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-faint">
+        {label}
+      </span>
+      <select
+        id={id}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={
+          "mt-2 w-full appearance-none border-b border-border-strong bg-transparent pb-2 text-[15px] outline-none transition-colors duration-200 focus:border-blue " +
+          (value ? "text-foreground" : "text-faint/70")
+        }
+      >
+        <option value="" disabled>
+          Choose
+        </option>
+        {options.map((o) => (
+          <option key={o} value={o}>
+            {o}
+          </option>
+        ))}
+      </select>
     </label>
   )
 }

@@ -11,16 +11,14 @@ import { EASE_REVEAL } from "@/lib/motion"
 import { cn } from "@/lib/utils"
 
 /**
- * The sales page. Prices are shown, not hidden: local owners decide fast, and
- * usually alone. Detail lives behind hover instead of a wall of ticks, so the
- * page stays short enough to read in one breath.
+ * The sales page, without a menu. Every engagement is priced to the business:
+ * market, category, how contested the answer is. So the tiers describe the
+ * SHAPE of the work, and the number arrives with the free report. All four
+ * engines are watched on every tier; that is the method, not an upsell.
  */
 type Plan = {
   id: string
   name: string
-  price: number
-  setup: number
-  term: string
   who: string
   featured?: boolean
   lines: readonly string[]
@@ -30,29 +28,22 @@ const PLANS: readonly Plan[] = [
   {
     id: "visibility",
     name: "Visibility",
-    price: 997,
-    setup: 1500,
-    term: "6-month minimum",
     who: "One location, room to win.",
     lines: [
-      "20+ trusted listings, built and kept current",
+      "Trusted listings, built and kept current",
       "Schema so the machines can read you",
-      "2 answer pages a month",
-      "3 engines watched, monthly report",
+      "Answer pages published monthly",
+      "All four engines watched, monthly report",
     ],
   },
   {
     id: "dominance",
     name: "Dominance",
-    price: 1997,
-    setup: 2500,
-    term: "6-month minimum",
     who: "A category someone else is winning.",
     featured: true,
     lines: [
       "Everything in Visibility",
-      "5 engines, 3 competitors tracked",
-      "4 answer pages a month",
+      "Competitor tracking in your category",
       "Review velocity worked, not hoped for",
       "Prompt research every two weeks",
     ],
@@ -60,16 +51,12 @@ const PLANS: readonly Plan[] = [
   {
     id: "authority",
     name: "Authority",
-    price: 3997,
-    setup: 5000,
-    term: "12-month minimum",
     who: "Several locations, or a fight.",
     lines: [
       "Everything in Dominance",
-      "7+ engines, 5+ competitors tracked",
-      "8 answer pages a month",
       "Digital PR into the lists AI trusts",
-      "3 locations included, quarterly strategy",
+      "Multi-location coverage",
+      "Quarterly strategy with the owner",
     ],
   },
 ] as const satisfies readonly Plan[]
@@ -91,7 +78,7 @@ export default function Pricing() {
               </MaskLine>
             </>
           }
-          lead="Setup once, then a monthly retainer. No free trial, and there is a reason."
+          lead="Setup once, then a monthly retainer. The number depends on your market, your category, and how contested the answer is. It arrives with your free report."
         />
       </Container>
 
@@ -121,19 +108,18 @@ export default function Pricing() {
                       </Eyebrow>
                       {plan.featured ? (
                         <span className="bg-yellow px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.12em] text-ink">
-                          Most take this
+                          Recommended
                         </span>
                       ) : null}
                     </div>
 
                     <div className="mt-6 flex items-baseline gap-1.5">
-                      <span className="font-display text-[2.6rem] font-[680] leading-none tracking-[-0.03em] tnum">
-                        ${plan.price.toLocaleString()}
+                      <span className="font-display text-[2.1rem] font-[680] leading-none tracking-[-0.03em]">
+                        Priced to you
                       </span>
-                      <span className="font-mono text-[11px] text-faint">/mo</span>
                     </div>
                     <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.08em] text-faint">
-                      + ${plan.setup.toLocaleString()} setup · {plan.term}
+                      Setup + monthly retainer · quoted with your report
                     </p>
 
                     <p className="mt-5 text-[15px] leading-relaxed text-muted-foreground">
@@ -172,7 +158,7 @@ export default function Pricing() {
                           className="w-full"
                         >
                           <Link to="/demo">
-                            Start with the report <ArrowRight />
+                            Get your number <ArrowRight />
                           </Link>
                         </Button>
                       </Magnetic>
@@ -185,7 +171,7 @@ export default function Pricing() {
 
           <p className="mt-6 border-l-2 border-yellow pl-4 text-[15px] leading-relaxed text-muted-foreground">
             <span className="font-medium text-foreground">Pay for the year, keep 15%.</span> One
-            business per category, per market.
+            business per category, per market, on every tier.
           </p>
         </Container>
       </Block>
@@ -194,7 +180,7 @@ export default function Pricing() {
         <Container>
           <Eyebrow tone="blue">
             <Marker tone="blue" />
-            Why no free trial
+            Why no menu, and no free trial
           </Eyebrow>
           <div className="mt-6 grid gap-8 md:grid-cols-[1.1fr_1fr] md:items-start">
             <p className="max-w-[46ch] font-display text-[clamp(1.5rem,3vw,2.1rem)] font-[640] leading-[1.15] tracking-[-0.02em]">
@@ -208,9 +194,10 @@ export default function Pricing() {
                 not a place kept.
               </p>
               <p>
-                So the first month is the heaviest, the work does not stop, and the
-                honest shape is setup plus a retainer. What we give away free is the
-                diagnosis, not the treatment.
+                And no two fights cost the same. Winning a quiet suburb is not winning
+                downtown Dallas, so a flat menu would overcharge one owner and starve the
+                other. Your report tells us which fight you are in. The quote follows it,
+                in writing, before you commit to anything.
               </p>
             </div>
           </div>

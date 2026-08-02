@@ -233,6 +233,8 @@
 
   html {
     scroll-behavior: smooth;
+    /* reserve the gutter so freezing scroll mid-handoff can't shift layout */
+    scrollbar-gutter: stable;
     -webkit-text-size-adjust: 100%;
     /* Nav is `fixed` (h-16 + border ≈ 65px) and overlays content instead of
        pushing it down, so every in-page anchor jump needs this or the
@@ -381,4 +383,13 @@
 }
 [data-theme="dark"] {
   --spotlight: rgba(125, 184, 240, 0.09);
+}
+
+/* ============================================================
+   PAGE HANDOFF LOCK (set by ScrollAdvance for the transition)
+   Freezes scroll with one class toggle instead of per-event JS;
+   PointerField also pauses its canvas while this is present.
+   ============================================================ */
+html.is-handoff {
+  overflow: hidden;
 }

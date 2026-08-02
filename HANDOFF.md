@@ -87,15 +87,16 @@ in `src/components/fx/`. Do not reintroduce one-page anchor scrolling.
 10. **Accessibility holds:** visible focus states, aria labels, contrast at
    WCAG AA in BOTH themes (light default + dim mode via the toggle).
 
-## Pricing page: proposed, not approved
+## Pricing: custom quotes only (owner decision, 2026-08-01)
 
-`/pricing` ships real dollar figures ($997 / $1,997 / $3,997 per month, plus
-setup fees and minimum terms). They are a **research-backed proposal awaiting
-the owner's sign-off**, benchmarked against GEO agency and local SEO retainer
-rates, not numbers he gave us. Do not treat them as settled, and do not let
-them reach production without his explicit yes. The "why no free trial"
-argument rests on measured citation decay; keep it qualitative on-page unless a
-cited figure is added deliberately (see constraint 6).
+The owner rejected fixed menu prices: every engagement is priced to the
+business, so `/pricing` shows tier SHAPES with "Priced to you" and every CTA
+routes to `/demo`, where the onboarding questionnaire (who they are, what they
+do, team size, locations) collects what a quote needs. Never reintroduce
+dollar figures on the site. Never state engine counts other than the flat
+fact: all four engines (ChatGPT, Perplexity, Gemini, Claude) on every tier;
+"more engines on higher tiers" was an invented differentiator and is banned
+under constraint 6. The "why no free trial" argument stays qualitative.
 
 ## How your work gets accepted
 

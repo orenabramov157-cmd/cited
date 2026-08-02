@@ -22,7 +22,7 @@ import { ArrowRight, ArrowLeft } from "lucide-react"
 import { nextStop, prevStop, trackIndex, TRACK, type TrackStop } from "@/lib/route-order"
 
 /** How much extra scroll intent past the edge commits to the next page. */
-const THRESHOLD = 300
+const THRESHOLD = 240
 /** Wheel deltas in "lines" need converting to something px-shaped. */
 const LINE_HEIGHT = 16
 /** Grace period after the last input before the lean starts easing back. */
@@ -58,6 +58,15 @@ const GESTURE_SPEND_PX = 120
 const ARRIVAL_HOLD_MS = 420
 /** Distance from the edge at which we start warning that travel is coming. */
 const NEAR_EDGE = 200
+
+/**
+ * Scroll is frozen with CSS during the handoff (see `.is-handoff` in
+ * index.css) instead of fighting each wheel tick with window.scrollTo, which
+ * forced a layout pass per event. One class toggle replaces all of that, and
+ * PointerField reads the same class to pause its canvas for the duration.
+ */
+const lockScroll = (on: boolean) =>
+  document.documentElement.classList.toggle("is-handoff", on)
 
 type Handoff = { stop: TrackStop; forward: boolean }
 
@@ -138,8 +147,10 @@ export function ScrollAdvance({ children }: { children: ReactNode }) {
       return
     }
     locked.current = true
+    lockScroll(true)
     const unlock = window.setTimeout(() => {
       locked.current = false
+      lockScroll(false)
       yAtUnlock.current = window.scrollY
       setCommitting(false)
     }, LOCK_MS)
@@ -151,6 +162,7 @@ export function ScrollAdvance({ children }: { children: ReactNode }) {
     return () => {
       window.clearTimeout(unlock)
       window.clearTimeout(clear)
+      lockScroll(false)
     }
   }, [pathname, pull, progress])
 
@@ -168,6 +180,7 @@ export function ScrollAdvance({ children }: { children: ReactNode }) {
     (stop: TrackStop, forward: boolean) => {
       if (locked.current) return
       locked.current = true
+      lockScroll(true) // freeze scroll instantly; the pathname effect re-arms it
       spent.current = true
       setCommitting(true)
       acc.current = 0
@@ -220,7 +233,9 @@ export function ScrollAdvance({ children }: { children: ReactNode }) {
       const clamped = Math.max(-THRESHOLD * 1.1, Math.min(THRESHOLD * 1.1, acc.current))
       acc.current = clamped
       setEdge(side)
-      pull.set(clamped / THRESHOLD)
+      // pull is written once per frame by the rAF tick below, not per event:
+      // trackpads fire faster than the display paints, and every extra .set
+      // was pure overhead inside the input handler
 
       if (Math.abs(clamped) >= THRESHOLD) {
         const target = side === "bottom" ? next : prev
@@ -243,11 +258,14 @@ export function ScrollAdvance({ children }: { children: ReactNode }) {
       if (spent.current && performance.now() - lastInput.current > GESTURE_GAP_MS) {
         spent.current = false
       }
-      if (acc.current === 0 || locked.current) return
+      if (locked.current) return
+      // single writer for the lean: batches input-rate updates to frame rate
+      const target = acc.current / THRESHOLD
+      if (pull.get() !== target) pull.set(target)
+      if (acc.current === 0) return
       if (performance.now() - lastInput.current < IDLE_MS) return
       acc.current *= DECAY
       if (Math.abs(acc.current) < 6) acc.current = 0
-      pull.set(acc.current / THRESHOLD)
     }
     raf = requestAnimationFrame(tick)
 
@@ -256,10 +274,10 @@ export function ScrollAdvance({ children }: { children: ReactNode }) {
       if (locked.current) {
         // Mid-handoff: absorb the tail of the flick instead of acting on it.
         // Recording the timestamp keeps the spent gesture marked as ongoing;
-        // it does NOT extend the lock, which is on a fixed timer.
+        // it does NOT extend the lock, which is on a fixed timer. Scroll
+        // itself is already frozen by the .is-handoff class, so no scrollTo.
         lastInput.current = performance.now()
         e.preventDefault()
-        window.scrollTo({ top: 0, behavior: "auto" })
         return
       }
       const dy = e.deltaMode === 1 ? e.deltaY * LINE_HEIGHT : e.deltaY
